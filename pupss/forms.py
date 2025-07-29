@@ -1,7 +1,9 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 
 
-class LoginForm(forms.Form):
-    username = forms.CharField(max_length=65)
-    password = forms.CharField(max_length=65, widget=forms.PasswordInput)
-
+class PUPSSCustomAuth(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
+        self.fields['password'].widget.attrs.update({'placeholder': 'Password'})
