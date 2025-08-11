@@ -1,0 +1,123 @@
+/* Landing Page */
+.logo {
+  width: 55px;
+  margin-right: 10px;
+}
+
+.login-btn {
+  background: var(--accent);
+  border: none;
+  color: var(--primary-fg);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.main-title {
+  text-align: center;
+  color: var(--main-title);
+  margin: 25px;
+  font-size: 28px;
+}
+
+/* Cards Section */
+.cards {
+  display: flex;
+  width: 600px;
+  margin: 0 auto;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  flex: 1 1 45%;
+  background: var(--card-primary);
+  margin-top: 10px;
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.card:nth-child(2) {
+  background: var(--card-secondary);
+  box-sizing: border-box;
+}
+
+.card-icons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.card-icons h3 {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.card p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Starburst icon (left card) */
+.starburst {
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 32px;
+  text-align: center;
+  clip-path: polygon(50% 0%, 61% 15%, 78% 9%, 84% 28%, 100% 35%, 91% 52%, 100% 70%, 84% 74%, 78% 91%, 61% 85%, 50% 100%, 39% 85%, 22% 91%, 16% 74%, 0% 70%, 9% 52%, 0% 35%, 16% 28%, 22% 9%, 39% 15%);
+}
+
+/* Ban Circle icon */
+.ban-circle {
+  position: relative;
+  border: 5px solid var(--accent);
+  border-radius: 70%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.ban-circle::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: var(--accent);
+  transform: rotate(-45deg);
+}
+
+/* AI Icon (right card) */
+.ai-icon {
+  object-fit: cover;
+  padding: 1px 2px;
+  border-radius: 8px;
+}
+
+.ai-icon img {
+  width: 120px;
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cards {
+    flex-direction: column;
+    align-items: center;
+  }
+}

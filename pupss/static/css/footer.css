@@ -1,0 +1,13 @@
+/* Footer */
+.footer {
+  margin: auto;
+  text-align: center;
+  font-size: 12px;
+  color: var(--footer);
+  line-height: 1.4;
+}
+
+.footer span {
+  display: block;
+  margin-top: 8px;
+}

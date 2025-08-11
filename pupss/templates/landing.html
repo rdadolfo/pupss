@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+
+    <!-- MAIN TITLE -->
+    <h1 class="main-title">PUP Hate Speech Detection</h1>
+
+ <!-- CARDS SECTION -->
+    <section class="cards">
+      <!-- LEFT CARD -->
+      <div class="card">
+        <div class="card-icons">
+          <div class="starburst">!@?#%&..</div>
+          <div class="ai-icon">
+            <img src="{% static 'img/hatespeech.png' %}"/>
+          </div>
+        </div>
+        <p>
+          Hate speech is commonly defined as speech or expression meant to insult or degrade individuals or groups based on race, ethnicity, gender, sexual orientation, religion, age, or physical or mental ability. While we have the right to free speech, it can sometimes include hate speech, which can hurt others.
+        </p>
+      </div>
+
+      <!-- RIGHT CARD -->
+      <div class="card">
+        <div class="card-icons">
+          <div class="ai-icon">
+            <img src="{% static 'img/ai_logo.png' %}" alt="AI Logo">
+          </div>
+          <h3>Artificial Intelligence</h3>
+        </div>
+        <p>
+          AI for hate speech detection uses machine learning and natural language processing (NLP) to find and reduce hate speech. This tool can automatically detect hate speech in student feedback for teachers. It helps admin to make decisions for fostering respectful and positive environment within the campus.
+        </p>
+      </div>
+    </section>
+
+  </div>
+{% endblock %}

@@ -8,20 +8,23 @@
     <title>{% block title %} PUP SpeechSafe {% endblock %}</title>
   </head>
   <body>
-  	<header class="header">
-      <div class="logo-title">
+  	<header>
+      <div id="header">
+        <div id="left-section">
           <img src="{% static 'admin/img/puplogo88x88.png' %}" alt="PUP Logo"></img>
-          <span> PUP SpeechSafe</span>
-      </div>
+          <span class="title"> PUP SpeechSafe</span>
+        </div>
+        <div id="right-section">
           {% if user.is_authenticated %}
           {% else %}
           {% if request.resolver_match.url_name != 'login' %}
-
           <div class="login-btn">
             <a href="{% url 'login' %}">Login</a>
           </div>
           {% endif %}
           {% endif %}
+        </div>
+      </div>
     </header>
   	<base>
 	  	{% if messages %}
@@ -39,12 +42,7 @@
   	</base>
 	
   </body>
+  <link type="stylesheet" href="{% static 'css/footer.css' %}"/>
+{% include "footer.html" %}
 
-    <footer class="footer">
-      <div>
-        <p>PUPSS values privacy. All data is securely stored, used only for this service, and never shared. It strictly secures every data from unauthorized access.</p>
-        <span>©2025 PUP SpeechSafe</span>
-      </div>
-    </footer>
- 
 </html>

@@ -1,0 +1,111 @@
+/* Variable */
+
+:root {
+    --primary: #75140c;
+    --secondary: #ff0100;
+    --accent: #e60000;
+    --primary-fg: #fff;
+    --body-fg: #333;
+    --main-title: #b30000;
+    --card-primary: #fff5e9;
+    --card-secondary: #f5eae9;
+    --footer: #555;
+
+    --button-fg: var(--primary);
+    --button-bg: var(--secondary);
+    --font-family-primary:
+        "Segoe UI",
+        system-ui,
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        sans-serif,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-family-monospace:
+        ui-monospace,
+        Menlo,
+        Monaco,
+        "Cascadia Mono",
+        "Segoe UI Mono",
+        "Roboto Mono",
+        "Oxygen Mono",
+        "Ubuntu Monospace",
+        "Source Code Pro",
+        "Fira Mono",
+        "Droid Sans Mono",
+        "Courier New",
+        monospace,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji";
+
+    color-scheme: light;
+}
+
+* {
+  font-family: var(--font-family-primary);
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    font-size: 0.875rem;
+    font-family: var(--font-family-primary);
+    color: var(--body-fg);
+    background: var(--body-bg);
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-fg);
+}
+
+/* Header */ 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--body-bg);
+  color: var(--primary);
+  margin: 0 auto;
+  padding: 10px 0;
+  width: 600px;
+  font-family: var(--font-family-primary);
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.login-btn {
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--primary);
+  background-color: var(--button); 
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  margin: 0 auto;
+  padding: 50px 0;
+  width: 600px;
+}

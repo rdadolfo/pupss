@@ -1,0 +1,146 @@
+/* LOGIN FORM */
+
+/* Cards Section */
+.cards {
+  display: flex;
+  width: 400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.login-header {
+  flex: auto;
+  max-width: 100%;
+  flex-direction: column;
+  background: var(--card-secondary);
+}
+
+.login-card {
+  flex: auto;
+  max-width: 100%;
+  background: var(--card-primary);
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.main-title {
+  text-align: center;
+  color: var(--main-title);
+  margin: 25px;
+  font-size: 28px;
+}
+
+.icon img {
+  margin-left: 140px;
+  padding: 10px;
+  width: 100px;
+  height: 100px;
+}
+
+.form-row {
+  padding: 10px;
+  margin: 10px auto;
+}
+
+.submit-row {
+  padding: 10px;
+  margin: 10px auto;
+}
+
+#id_username {
+  padding: 8px;
+  width: 80%;
+  box-sizing: border-box;
+}
+
+#id_password {
+  padding: 8px;
+  width: 80%;
+  box-sizing: border-box;
+}
+
+/* FORM BUTTONS */
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--secondary);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 7px;
+    color: var(--primary-fg);
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.15s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cards {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* PAGE STRUCTURE */
+
+#container {
+    position: relative;
+    width: 100%;
+    min-width: 980px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#container > .main {
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.main > .content {
+    flex:  1 0;
+    max-width: 100%;
+}
+
+.skip-to-content-link {
+    position: absolute;
+    top: -999px;
+    margin: 5px;
+    padding: 5px;
+    background: var(--body-bg);
+    z-index: 1;
+}
+
+.skip-to-content-link:focus {
+    left: 0px;
+    top: 0px;
+}
+
+#content {
+    padding: 20px 40px;
+}
+
+.dashboard #content {
+    width: 600px;
+}
+
+#content-main {
+    float: left;
+    width: 100%;
+}
+
+#content-related {
+    float: right;
+    width: 260px;
+    position: relative;
+    margin-right: -300px;
+}
+
+@media (forced-colors: active) {
+  #content-related {
+      border: 1px solid;
+  }
+}
