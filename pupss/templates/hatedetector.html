@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} PUPSS | FILENGHateDector {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/hatedetector.css' %}">
+
+    <h1 class="main-title">PUPSS FILENGHateDetector Tool</h1>
+
+    <section class="card">
+        <div class="square">
+            <div class="row">
+                <h1>Drag and Drop Files</h1>
+            </div>
+            <div class="row">
+                <a>UPLOAD</a>
+            </div>
+            <div class="row">
+                <h3>Or a file from your computer</h3>
+            </div>
+            <div class="row">
+                <h4>This tool will automatically process after uploading.</h4>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

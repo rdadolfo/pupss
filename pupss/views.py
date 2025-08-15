@@ -9,7 +9,10 @@ def landing(request):
 def dashboard(request):
     return render(request, "dashboard.html")
 
+def hatedetector(request):
+    return render(request, "hatedetector.html")
+
 def custom_logout(request):
     logout(request)
     request.session.flush()  
-    return redirect('landing')
+    return redirect("landing")
