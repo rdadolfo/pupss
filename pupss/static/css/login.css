@@ -13,7 +13,6 @@
 .login-header {
   flex: auto;
   max-width: 100%;
-  flex-direction: column;
   background: var(--card-secondary);
 }
 
@@ -29,7 +28,8 @@
 .main-title {
   text-align: center;
   color: var(--main-title);
-  margin: 25px;
+  margin: 35px;
+  margin-bottom: 55px;
   font-size: 28px;
 }
 
@@ -80,67 +80,5 @@
   .cards {
     flex-direction: column;
     align-items: center;
-  }
-}
-
-/* PAGE STRUCTURE */
-
-#container {
-    position: relative;
-    width: 100%;
-    min-width: 980px;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-#container > .main {
-    display: flex;
-    flex: 1 0 auto;
-}
-
-.main > .content {
-    flex:  1 0;
-    max-width: 100%;
-}
-
-.skip-to-content-link {
-    position: absolute;
-    top: -999px;
-    margin: 5px;
-    padding: 5px;
-    background: var(--body-bg);
-    z-index: 1;
-}
-
-.skip-to-content-link:focus {
-    left: 0px;
-    top: 0px;
-}
-
-#content {
-    padding: 20px 40px;
-}
-
-.dashboard #content {
-    width: 600px;
-}
-
-#content-main {
-    float: left;
-    width: 100%;
-}
-
-#content-related {
-    float: right;
-    width: 260px;
-    position: relative;
-    margin-right: -300px;
-}
-
-@media (forced-colors: active) {
-  #content-related {
-      border: 1px solid;
   }
 }

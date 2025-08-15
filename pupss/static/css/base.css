@@ -91,14 +91,25 @@ a {
 }
 
 .login-btn {
-  padding: 8px 16px;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--primary);
-  background-color: var(--button); 
+  background: var(--accent);
+  color: var(--primary-fg);
   border: none;
-  border-radius: 4px;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: bold;
   cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-btn {
+  background: var(--accent);
+  color: var(--primary-fg);
+  border: none;
+  padding:  8px 20px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .footer {

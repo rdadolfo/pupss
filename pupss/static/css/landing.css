@@ -4,17 +4,6 @@
   margin-right: 10px;
 }
 
-.login-btn {
-  background: var(--accent);
-  border: none;
-  color: var(--primary-fg);
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-}
-
 .main-title {
   text-align: center;
   color: var(--main-title);
