@@ -24,7 +24,7 @@
 .card {
   flex: 1 1 45%;
   background: var(--card-primary);
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 20px;
   border-radius: 20px;
   display: flex;

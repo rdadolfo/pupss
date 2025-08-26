@@ -7,21 +7,28 @@
 
     <h1 class="main-title">PUPSS FILENGHateDetector Tool</h1>
 
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
     <section class="card">
-        <div class="square">
+        <div class="square" id="drop-zone">
             <div class="row">
-                <h1>Drag and Drop Files</h1>
+                <h1 id="hide-text">Drag and Drop Files</h1>
+                <img id="logo" src="{% static 'img/txt.png' %}" alt="Logo" style="display: none;" />
+                <p id="file-name" style="display: none;"></p>
+            </div>
+            <div class="row" id="hide-text">
+                <input type="file" id="file-input" multiple style="display: none;"></input>
+                <a id="hide-button">UPLOAD</a>
             </div>
             <div class="row">
-                <a>UPLOAD</a>
+                <h3 id="hide-msg">Or a file from your computer</h3>
             </div>
             <div class="row">
-                <h3>Or a file from your computer</h3>
-            </div>
-            <div class="row">
-                <h4>This tool will automatically process after uploading.</h4>
+                <h4 id="hide-msg-info">This tool will automatically process after uploading.</h4>
             </div>
         </div>
     </section>
-
+</form>
+<script src="{% static 'js/upload.js' %}"></script>
 {% endblock %}
