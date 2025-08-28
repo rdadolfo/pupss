@@ -7,9 +7,6 @@
 
     <h1 class="main-title">PUPSS FILENGHateDetector Tool</h1>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
     <section class="card">
         <div class="square" id="drop-zone">
             <div class="row">
@@ -29,6 +26,6 @@
             </div>
         </div>
     </section>
-</form>
+
 <script src="{% static 'js/upload.js' %}"></script>
 {% endblock %}

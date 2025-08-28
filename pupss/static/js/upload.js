@@ -3,6 +3,7 @@ const fileInput = document.getElementById('file-input');
 const fileName = document.getElementById('file-name');
 const logo = document.getElementById('logo');
 const idsToHide = ['hide-text', 'hide-button', 'hide-msg', 'hide-msg-info']; 
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 // Highlight drop zone on dragover
 dropZone.addEventListener('dragover', (event) => {
@@ -39,7 +40,6 @@ function handleFile(file) {
         element.style.display = 'none';}
       });
     logo.style.display = 'block';
-    logo.href = "{% static 'img/txt.png' %}" 
     fileName.style.display = 'block';
     fileName.textContent = `Uploaded: ${file.name}`;
     uploadFile(file);
@@ -51,8 +51,11 @@ function uploadFile(file) {
   const formData = new FormData();
   formData.append('file', file);
 
-  fetch('/upload', {
+  fetch('/upload/', {
     method: 'POST',
+    headers: {
+        "X-CSRFToken": csrfToken  
+    },
     body: formData,
   })
     .then((response) => response.json())
