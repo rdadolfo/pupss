@@ -13,7 +13,14 @@
                 <h1 id="hide-text">Drag and Drop Files</h1>
                 <img id="logo" src="{% static 'img/txt.png' %}" alt="Logo" style="display: none;" />
                 <p id="file-name" style="display: none;"></p>
-            </div>
+<div id="upload-container" style="margin-top:20px;">
+  <div id="progress-wrapper" style="width:100%; background:#f3f3f3; border-radius:10px; overflow:hidden; display:none;">
+    <div id="progress-bar" style="height:20px; width:0%; background:#4caf50; text-align:center; color:white; line-height:20px; font-size:12px;">
+      0%
+    </div>
+  </div>
+  <p id="upload-message" style="margin-top:10px; font-weight:bold; display:none;"></p>
+</div>            </div>
             <div class="row" id="hide-text">
                 <input type="file" id="file-input" multiple style="display: none;"></input>
                 <a id="hide-button">UPLOAD</a>

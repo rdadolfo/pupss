@@ -51,14 +51,56 @@ function uploadFile(file) {
   const formData = new FormData();
   formData.append('file', file);
 
-  fetch('/upload/', {
-    method: 'POST',
-    headers: {
-        "X-CSRFToken": csrfToken  
-    },
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => console.log('Upload successful:', data))
-    .catch((error) => console.error('Upload failed:', error));
+  const xhr = new XMLHttpRequest();
+  const progressWrapper = document.getElementById("progress-wrapper");
+  const progressBar = document.getElementById("progress-bar");
+  const uploadMessage = document.getElementById("upload-message");
+
+  // Reset UI
+  progressWrapper.style.display = "block";
+  progressBar.style.width = "0%";
+  progressBar.textContent = "0%";
+  uploadMessage.style.display = "none";
+
+  // Track upload progress
+  xhr.upload.addEventListener("progress", (event) => {
+    if (event.lengthComputable) {
+      const percentComplete = Math.round((event.loaded / event.total) * 100);
+      progressBar.style.width = percentComplete + "%";
+      progressBar.textContent = percentComplete + "%";
+    }
+  });
+
+  // When upload finishes
+  xhr.addEventListener("load", () => {
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+
+      progressBar.style.width = "100%";
+      progressBar.textContent = "100%";
+
+      // Show success message
+      uploadMessage.style.display = "block";
+      uploadMessage.style.color = "green";
+      uploadMessage.textContent = `✅ Upload finished: ${response.filename}`;
+
+      console.log("Upload successful:", response);
+    } else {
+      uploadMessage.style.display = "block";
+      uploadMessage.style.color = "red";
+      uploadMessage.textContent = "❌ Upload failed. Please try again.";
+    }
+  });
+
+  // Handle errors
+  xhr.addEventListener("error", () => {
+    uploadMessage.style.display = "block";
+    uploadMessage.style.color = "red";
+    uploadMessage.textContent = "❌ Network error during upload.";
+  });
+
+  // Open and send request
+  xhr.open("POST", "/upload/");
+  xhr.setRequestHeader("X-CSRFToken", csrfToken);
+  xhr.send(formData);
 }
