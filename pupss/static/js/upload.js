@@ -41,7 +41,6 @@ function handleFile(file) {
       });
     logo.style.display = 'block';
     fileName.style.display = 'block';
-    fileName.textContent = `Uploaded: ${file.name}`;
     uploadFile(file);
   }
 }
@@ -81,7 +80,7 @@ function uploadFile(file) {
 
       // Show success message
       uploadMessage.style.display = "block";
-      uploadMessage.style.color = "green";
+      uploadMessage.style.color = "white";
       uploadMessage.textContent = `✅ Upload finished: ${response.filename}`;
 
       console.log("Upload successful:", response);
