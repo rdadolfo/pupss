@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -12,10 +12,11 @@
     <title>{% block title %} PUP SpeechSafe {% endblock %}</title>
   </head>
   <body>
+
   	<header class="header">
       <div class="logo-title">
-          <img src="{% static 'admin/img/puplogo88x88.png' %}" alt="PUP Logo"></img>
-          <span> PUP SpeechSafe</span>
+          <a href="{% url 'landing' %}"><img src="{% static 'admin/img/puplogo88x88.png' %}" alt="PUP Logo"></img>
+          </a><span>PUP SpeechSafe</span>
       </div>
   
           {% if not user.is_authenticated and request.path == '/' %}
@@ -23,6 +24,16 @@
             <a href="{% url 'login' %}">Login</a>
           </div>
           {% else %}
+            {% if request.path == '/dashboard/' %}
+              <div class="hatedetector-btn">
+                <a href="{% url 'hatedetector' %}">Hatedetector</a>
+              </div>
+            {% endif %}
+            {% if request.path == '/hatedetector/' %}
+              <div class="hatedetector-btn">
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+              </div>
+            {% endif %}
             {% if request.path != '/login/' %}
               <div class="logout-btn">
                 <a href="{% url 'logout' %}">Logout</a>
@@ -31,6 +42,7 @@
           {% endif %}
 
     </header>
+
   	<base>
 	  	{% if messages %}
 			<div class="messages">
@@ -50,9 +62,9 @@
 
     <footer class="footer">
       <div>
-        <p>PUPSS values privacy. All data is securely stored, used only for this service, and never shared. It strictly secures every data from unauthorized access.</p>
+        <p>PUPSS values privacy. All data is securely stored, used only for this service, and never shared. 
+          It strictly secures every data from unauthorized access.</p>
         <span>©2025 PUP SpeechSafe</span>
       </div>
     </footer>
- 
 </html>

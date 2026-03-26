@@ -3,36 +3,118 @@
 {% block title %} PUPSS | FILENGHateDector {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/hatedetector.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/hatedetector.css' %}">
 
     <h1 class="main-title">PUPSS FILENGHateDetector Tool</h1>
 
-    <section class="card">
-        <div class="square" id="drop-zone">
-            <div class="row">
-                <h1 id="hide-text">Drag and Drop Files</h1>
-                <img id="logo" src="{% static 'img/txt.png' %}" alt="Logo" style="display: none;" />
-                <p id="file-name" style="display: none;"></p>
-<div id="upload-container">
-  <div id="progress-wrapper">
-    <div id="progress-bar">
-      0%
+      <!-- Upload card -->
+
+<div class="wrapper">
+<form id="uploadForm">
+  <div class="card">
+    <p class="card-title">📂 Upload CSV File</p>
+
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon">📄</div>
+      <p class="drop-label">Drag &amp; drop your CSV here, or <strong>click to browse</strong></p>
+      <input type="file" id="fileInput" accept=".csv" />
+      <div id="fileName"></div>
+    </div>
+
+    <div class="col-row">
+      <div class="field">
+        <label for="columnSelect">Text Column (auto-detected after upload)</label>
+        <select id="columnSelect" disabled>
+          <option value="">— upload a file first —</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="runBtn" disabled onclick="runDetection()">
+        🔍 Detect Hate Speech
+      </button>
+    </div>
+  </form>
+</div>
+
+    <!-- Status bar -->
+  <div id="statusBar"></div>
+
+  <!-- Stats -->
+  <div id="statsSection">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Rows</div>
+        <div class="stat-value accent-col" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hate Speech</div>
+        <div class="stat-value hate-col" id="statHate">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Not Hate</div>
+        <div class="stat-value safe-col" id="statSafe">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hate %</div>
+        <div class="stat-value hate-col" id="statPct">0%</div>
+      </div>
     </div>
   </div>
-  <p id="upload-message" style="margin-top:10px; font-weight:bold; display:none;"></p>
-</div>            </div>
-            <div class="row" id="hide-text">
-                <input type="file" id="file-input" multiple style="display: none;"></input>
-                <a id="hide-button">UPLOAD</a>
-            </div>
-            <div class="row">
-                <h3 id="hide-msg">Or a file from your computer</h3>
-            </div>
-            <div class="row">
-                <h4 id="hide-msg-info">This tool will automatically process after uploading.</h4>
-            </div>
-        </div>
-    </section>
 
-<script src="{% static 'js/upload.js' %}"></script>
+  <!-- Results table -->
+  <div id="resultsSection">
+    <div class="table-controls">
+      <button class="filter-btn active"     data-filter="all"  onclick="filterTable(this)">All</button>
+      <button class="filter-btn hate-filter" data-filter="HATE" onclick="filterTable(this)">🚨 Hate Only</button>
+      <button class="filter-btn"            data-filter="NOT HATE" onclick="filterTable(this)">✅ Safe Only</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-outline" onclick="downloadResults()">⬇ Download CSV</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Text</th>
+            <th>Label</th>
+            <th>Confidence</th>
+            <th>Hate Words Found</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+
+
+  <!-- Status bar -->
+  <div id="statusBar"></div>
+
+  <!-- Stats -->
+  <div id="statsSection">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Rows</div>
+        <div class="stat-value accent-col" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hate Speech</div>
+        <div class="stat-value hate-col" id="statHate">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Not Hate</div>
+        <div class="stat-value safe-col" id="statSafe">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hate %</div>
+        <div class="stat-value hate-col" id="statPct">0%</div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="{% static 'js/hatedetector.js' %}"></script>
 {% endblock %}

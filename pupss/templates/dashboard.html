@@ -4,25 +4,25 @@
 {% block title %} PUPSS | Dashboard {% endblock %}
 {%block content %}
 
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 
-    <h1 class="main-title">PUPSS Dashboard</h1>
+<section class="cards"><h1 class="main-title">PUPSS Dashboard</h1></section>
 
-    <section class="cards">
+<section class="cards">
         <div class="board">
             <div class="row">
                 <img src="{% static 'img/add_user.png' %}" alt="login icon">
-                <span>Test 1</span> 
-                <h1>3</h1> 
+                <span>Users</span> 
+                <h1>2</h1> 
             </div>
             <div class="row">
                 <img src="{% static 'img/add_group.png' %}" alt="login icon">
-                <span>Test 2</span> 
+                <span>Groups</span> 
                 <h1>3</h1> 
             </div>
             <div class="row"> 
                 <img src="{% static 'img/add_report.png' %}" alt="login icon">
-                <span>Test 3</span> 
+                <span>Hate list</span> 
                 <h1>3</h1> 
             </div>
          </div>
