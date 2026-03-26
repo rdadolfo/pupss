@@ -114,9 +114,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR/ 'pupss/static'
-UPLOAD_ROOT = STATIC_ROOT/ 'upload'
+STATIC_URL = "/static/"
+
+STATIC_ROOT = BASE_DIR/ "pupss/static"
+UPLOAD_ROOT = BASE_DIR/ "pupss/upload"
 
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "dashboard"
