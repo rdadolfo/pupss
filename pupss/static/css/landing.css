@@ -23,7 +23,7 @@
 
 .card {
   flex: 1 1 45%;
-  background: var(--card-primary);
+  background: var(--card-tertiary);
   margin-top: 20px;
   padding: 20px;
   border-radius: 20px;
@@ -35,7 +35,7 @@
 }
 
 .card:nth-child(2) {
-  background: var(--card-secondary);
+  background: var(--card-primary);
   box-sizing: border-box;
 }
 

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-import re
+import os, re
 from typing import Optional
 
 class Document(models.Model):
@@ -22,121 +22,204 @@ class Document(models.Model):
     def __str__(self):
         return self.title
 
-# ── attempt to load transformers ──────────────────────────────────────────────
-try:
-    from transformers import pipeline as hf_pipeline
-    TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    TRANSFORMERS_AVAILABLE = False
-
-# ── fallback keyword list (lightweight demo mode) ─────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
+MODEL_PATH = "./hatedetector"   # <- path to your saved checkpoint
+USE_GPU    = True                            # set False to force CPU
+THRESHOLD  = 0.5                             # hate score threshold
+ 
+# ── Keyword fallback ──────────────────────────────────────────────────────────
 HATE_KEYWORDS = [
-    # Tagalog slurs / insults (non-exhaustive, for demo)
     "putangina", "puta", "gago", "bobo", "tanga", "ulol", "inutil",
     "pakyu", "leche", "tarantado", "lintik", "pesteng yawa",
     "hayop ka", "walang kwenta", "bwisit", "engot", "ungas",
-    # Common mixed-language hate markers
     "pukingina", "punyeta", "bwiset", "ampota", "hudas",
 ]
-
 HATE_PATTERN = re.compile(
     r'\b(' + '|'.join(re.escape(k) for k in HATE_KEYWORDS) + r')\b',
     re.IGNORECASE
 )
-
-
+ 
+ 
 class HateSpeechDetector:
     """
-    Two-mode detector:
-      1. Transformer mode  – uses zero-shot multilingual model (accurate)
-      2. Keyword mode      – fast regex fallback (no GPU/transformers needed)
+    Loads your fine-tuned BERT model for Taglish hate speech detection.
+    Falls back to keyword detection if the model cannot be loaded.
+ 
+    Modes:
+      1. bert    - your fine-tuned checkpoint (90% F1)
+      2. keyword - regex fallback (always available)
     """
-
-    def __init__(self, use_transformer: bool = True, model_name: Optional[str] = None):
-        self.use_transformer = use_transformer and TRANSFORMERS_AVAILABLE
+ 
+    def __init__(self):
+        self._mode      = "keyword"
         self.classifier = None
-
-        if self.use_transformer:
-            _model = model_name or "facebook/bart-large-mnli"
-            try:
-                self.classifier = hf_pipeline(
-                    "zero-shot-classification",
-                    model=_model,
-                    device=-1,          # CPU; set to 0 for GPU
-                )
-                print(f"[HateDetector] Transformer loaded: {_model}")
-            except Exception as exc:
-                print(f"[HateDetector] Transformer load failed ({exc}), falling back to keyword mode.")
-                self.use_transformer = False
-
-    # ── public API ────────────────────────────────────────────────────────────
-
+        self._load_model()
+ 
+    # ── Loader ────────────────────────────────────────────────────────────────
+ 
+    def _load_model(self):
+        if not os.path.isdir(MODEL_PATH):
+            print(f"[HateDetector] Model not found at '{MODEL_PATH}'")
+            print("[HateDetector] Using keyword fallback.")
+            print("[HateDetector] Run your training notebook to generate the model first.")
+            return
+ 
+        try:
+            from transformers import (
+                AutoTokenizer,
+                AutoModelForSequenceClassification,
+                pipeline as hf_pipeline,
+            )
+            import torch
+ 
+            # Determine device
+            if USE_GPU and torch.cuda.is_available():
+                device     = 0
+                device_str = f"GPU ({torch.cuda.get_device_name(0)})"
+            else:
+                device     = -1
+                device_str = "CPU"
+ 
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+            model     = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+ 
+            self.classifier = hf_pipeline(
+                "text-classification",
+                model             = model,
+                tokenizer         = tokenizer,
+                device            = device,
+                return_all_scores = True,
+            )
+ 
+            self._mode = "bert"
+            print(f"[HateDetector] Fine-tuned BERT loaded from '{MODEL_PATH}'")
+            print(f"[HateDetector] Device : {device_str}")
+ 
+        except Exception as exc:
+            print(f"[HateDetector] Model load failed: {exc}")
+            print("[HateDetector] Using keyword fallback.")
+ 
+    # ── Public API ────────────────────────────────────────────────────────────
+ 
     def predict(self, text: str) -> dict:
         """
         Returns:
             {
                 "label":      "HATE" | "NOT HATE",
-                "confidence": 0.0–1.0,
-                "highlights": ["word1", "word2", ...]   # matched hate words
+                "confidence": 0.0-1.0,
+                "highlights": ["word1", "word2", ...]
             }
         """
         if not isinstance(text, str) or not text.strip():
             return {"label": "NOT HATE", "confidence": 1.0, "highlights": []}
-
-        highlights = self._extract_highlights(text)
-
-        if self.use_transformer:
-            return self._transformer_predict(text, highlights)
-        else:
-            return self._keyword_predict(text, highlights)
-
-    def predict_batch(self, texts: list[str]) -> list[dict]:
+ 
+        highlights = self._get_highlights(text)
+ 
+        if self._mode == "bert":
+            return self._bert_predict(text, highlights)
+        return self._keyword_predict(text, highlights)
+ 
+    def predict_batch(self, texts: list) -> list:
+        """Run prediction on a list of texts efficiently."""
+        if not texts:
+            return []
+ 
+        # Use batch inference for BERT (much faster than one-by-one)
+        if self._mode == "bert":
+            return self._bert_predict_batch(texts)
+ 
         return [self.predict(t) for t in texts]
-
-    # ── private helpers ───────────────────────────────────────────────────────
-
-    def _extract_highlights(self, text: str) -> list[str]:
-        """Find hate keywords present in the text."""
-        return list({m.group(0).lower() for m in HATE_PATTERN.finditer(text)})
-
-    def _transformer_predict(self, text: str, highlights: list[str]) -> dict:
-        candidate_labels = ["hate speech", "not hate speech"]
+ 
+    # ── Internal prediction ───────────────────────────────────────────────────
+ 
+    def _bert_predict(self, text: str, highlights: list) -> dict:
         try:
-            result = self.classifier(
-                text[:512],          # truncate for speed
-                candidate_labels=candidate_labels,
-                hypothesis_template="This text is {}.",
-            )
-            top_label = result["labels"][0]
-            confidence = result["scores"][0]
-            label = "HATE" if "hate" in top_label and "not" not in top_label else "NOT HATE"
-
-            # Boost confidence if keywords also found
+            scores     = self.classifier(text[:512])[0]
+            hate_score = self._get_hate_score(scores)
+            label      = "HATE" if hate_score >= THRESHOLD else "NOT HATE"
+            confidence = hate_score if label == "HATE" else 1 - hate_score
+ 
+            # Keyword boost: BERT says NOT HATE but keywords found -> escalate
             if label == "NOT HATE" and highlights:
-                label = "HATE"
-                confidence = max(confidence, 0.75)
-
-            return {"label": label, "confidence": round(confidence, 4), "highlights": highlights}
-
+                label      = "HATE"
+                confidence = max(float(confidence), 0.72)
+ 
+            return {
+                "label":      label,
+                "confidence": round(float(confidence), 4),
+                "highlights": highlights,
+            }
+ 
         except Exception as exc:
             print(f"[HateDetector] Inference error: {exc}")
             return self._keyword_predict(text, highlights)
-
-    def _keyword_predict(self, text: str, highlights: list[str]) -> dict:
-        """Simple keyword-based fallback."""
+ 
+    def _bert_predict_batch(self, texts: list) -> list:
+        """Batch inference — significantly faster for CSV processing."""
+        try:
+            truncated  = [str(t)[:512] if isinstance(t, str) else "" for t in texts]
+            all_scores = self.classifier(truncated, batch_size=32)
+ 
+            results = []
+            for text, scores in zip(texts, all_scores):
+                highlights = self._get_highlights(str(text))
+                hate_score = self._get_hate_score(scores)
+                label      = "HATE" if hate_score >= THRESHOLD else "NOT HATE"
+                confidence = hate_score if label == "HATE" else 1 - hate_score
+ 
+                if label == "NOT HATE" and highlights:
+                    label      = "HATE"
+                    confidence = max(float(confidence), 0.72)
+ 
+                results.append({
+                    "label":      label,
+                    "confidence": round(float(confidence), 4),
+                    "highlights": highlights,
+                })
+            return results
+ 
+        except Exception as exc:
+            print(f"[HateDetector] Batch inference error: {exc}")
+            return [self.predict(t) for t in texts]
+ 
+    def _keyword_predict(self, text: str, highlights: list) -> dict:
         if highlights:
-            # Rough confidence: more keywords → higher confidence
             conf = min(0.60 + 0.08 * len(highlights), 0.95)
             return {"label": "HATE", "confidence": round(conf, 4), "highlights": highlights}
         return {"label": "NOT HATE", "confidence": 0.85, "highlights": []}
-
-
-# ── module-level singleton (lazy) ─────────────────────────────────────────────
+ 
+    # ── Helpers ───────────────────────────────────────────────────────────────
+ 
+    def _get_highlights(self, text: str) -> list:
+        return list({m.group(0).lower() for m in HATE_PATTERN.finditer(text)})
+ 
+    def _get_hate_score(self, scores: list) -> float:
+        """
+        Extract hate probability from classifier output.
+        Handles LABEL_0/LABEL_1 and custom label names robustly.
+        """
+        for s in scores:
+            lbl = s["label"].upper()
+            if lbl in ("LABEL_1", "1", "HATE"):
+                return float(s["score"])
+        # Fallback: assume [not_hate, hate] ordering
+        return float(scores[1]["score"]) if len(scores) > 1 else 0.0
+ 
+    @property
+    def mode(self) -> str:
+        return self._mode
+ 
+    @property
+    def is_ready(self) -> bool:
+        return self._mode == "bert"
+ 
+ 
+# ── Singleton ─────────────────────────────────────────────────────────────────
 _detector: Optional[HateSpeechDetector] = None
-
-
+ 
+ 
 def get_detector() -> HateSpeechDetector:
     global _detector
     if _detector is None:
-        _detector = HateSpeechDetector(use_transformer=TRANSFORMERS_AVAILABLE)
+        _detector = HateSpeechDetector()
     return _detector

@@ -13,7 +13,6 @@ from .models import get_detector
 TEXT_COLUMN_HINTS = [
     "text", "comment", "post", "message", "content", "tweet",
     "feedback", "review", "body", "remarks", "description",
-    # Tagalog / Filipino hints
     "mensahe", "komento", "teksto",
 ]
 

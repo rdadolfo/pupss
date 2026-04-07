@@ -6,26 +6,47 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 
-<section class="cards"><h1 class="main-title">PUPSS Dashboard</h1></section>
+<h1 class="main-title">PUPSS Dashboard</h1>
 
-<section class="cards">
-        <div class="board">
-            <div class="row">
-                <img src="{% static 'img/add_user.png' %}" alt="login icon">
-                <span>Users</span> 
-                <h1>2</h1> 
-            </div>
-            <div class="row">
-                <img src="{% static 'img/add_group.png' %}" alt="login icon">
-                <span>Groups</span> 
-                <h1>3</h1> 
-            </div>
-            <div class="row"> 
-                <img src="{% static 'img/add_report.png' %}" alt="login icon">
-                <span>Hate list</span> 
-                <h1>3</h1> 
-            </div>
-         </div>
-</section>
+    <section class="cards">
+      <div class="card">
+        <div class="card-icons">
+          <h3>5</h3>
+          <div class="icon">
+            <img src="{% static 'img/hatespeech_bold.png' %}"/>
+          </div>
+        </div>
+        <p>View more</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icons">
+          <h3>7</h3>
+          <div class="icon">
+            <img src="{% static 'img/safe.png' %}" alt="AI Logo">
+          </div>
+        </div>
+        <p>View more</p>
+      </div>
+      <div class="card">
+        <div class="card-icons">
+          <div class="starburst">5</div>
+          <div class="icon">
+            <img src="{% static 'img/students.png' %}"/>
+          </div>
+        </div>
+        <p>7</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icons">
+          <div class="icon">
+            <img src="{% static 'img/professor.png' %}" alt="AI Logo">
+          </div>
+          <h3>Artificial Intelligence</h3>
+        </div>
+        <p>5</p>
+      </div>
+    </section>
 
 {% endblock %}

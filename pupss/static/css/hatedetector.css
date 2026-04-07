@@ -16,7 +16,7 @@
 
     /* ── Upload card ──────────────────────────────────────────── */
 .card {
-    background: var(--card-secondary);
+    background: var(--card-primary);
     border: 2px solid var(--primary);
     border-radius: 16px;
     padding: 2.75rem;
@@ -35,17 +35,20 @@
 .drop-zone {
     border: 2px dashed var(--primary);
     border-radius: 12px; 
-    padding: 2.5rem 5.5rem;
+    padding: 2.74rem 11.793rem;
     text-align: center; 
     cursor: pointer;
     transition: border-color .2s, background .2s;
 }
-
 .drop-zone:hover, .drop-zone.drag-over {
       border-color: var(--primary);
-      background: var(--card-primary);
+      background: var(--card-tertiary);
 } 
-.drop-icon { font-size: 3.5rem; margin-bottom: .5rem; }
+.drop-icon img {
+  width: 110px;
+  height: 120px;
+  text-align: center;
+}
 .drop-label { color: var(--muted); font-size: 1rem; }
 .drop-label strong { color: var(--accent); }
 
@@ -69,7 +72,7 @@
 label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .4rem; }
     
 select, input[type=text] {
-      width: 100%; background: var(--card-secondary); border: 1px solid var(--border);
+      width: 100%; background: var(--card-primary); border: 1px solid var(--border);
       border-radius: 8px; padding: .55rem .9rem; color: var(--muted);
       font-size: .9rem; outline: none;
       transition: border-color .2s;
@@ -99,7 +102,7 @@ select:focus, input:focus { border-color: var(--primary); }
     /* ── Progress / status ────────────────────────────────────── */
 #statusBar {
   display: none; padding: .75rem 1rem;
-  background: var(--card-secondary); border-radius: 10px;
+  background: var(--card-primary); border-radius: 10px;
   font-size: .875rem; color: var(--muted); margin-bottom: 1.5rem;
   border-left: 3px solid var(--primary);
 }

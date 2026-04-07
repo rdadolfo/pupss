@@ -16,6 +16,22 @@ dropZone.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 
+// Helper to get the CSRF cookie
+const getCookie = (name) => {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+};
+
 // ── On page load: restore last results from sessionStorage ───────────────────
 window.addEventListener('DOMContentLoaded', () => {
   // Always start with button disabled — no file is loaded yet after refresh
@@ -48,7 +64,7 @@ async function handleFile(file) {
   }
 
   uploadedFile = file;
-  document.getElementById('fileName').textContent = `📎 ${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
+  document.getElementById('fileName').textContent = `${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
   document.getElementById('fileName').style.display = 'block';
 
   // Preview columns
@@ -57,7 +73,14 @@ async function handleFile(file) {
   fd.append('file', file);
 
   try {
-    const r = await fetch('/hatedetector/preview/', { method: 'POST', body: fd });
+      const r = await fetch('/hatedetector/preview/', { 
+        method: 'POST', 
+        body: fd, 
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        }
+      });
+
     const d = await r.json();
     if (d.error) { showStatus(d.error, true); return; }
     populateColumns(d.headers, d.detected_column);
@@ -92,22 +115,6 @@ function populateColumns(headers, detected) {
 
 // ── runDetection ─────────────────────────────────────────────────────────────
 async function runDetection() {
-  
-  // Helper to get the CSRF cookie
-  const getCookie = (name) => {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  };
 
   if (!uploadedFile) return;
 

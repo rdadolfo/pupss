@@ -16,7 +16,9 @@
     <p class="card-title">📂 Upload CSV File</p>
 
     <div class="drop-zone" id="dropZone">
-      <div class="drop-icon">📄</div>
+      <div class="drop-icon">
+        <img src="{% static 'img/csv.png' %}"/>
+      </div>
       <p class="drop-label">Drag &amp; drop your CSV here, or <strong>click to browse</strong></p>
       <input type="file" id="fileInput" accept=".csv" />
       <div id="fileName"></div>
