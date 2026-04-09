@@ -11,42 +11,43 @@
     <section class="cards">
       <div class="card">
         <div class="card-icons">
-          <h3>5</h3>
           <div class="icon">
             <img src="{% static 'img/hatespeech_bold.png' %}"/>
           </div>
+          <h3 id="stat-hate">...</h3>
         </div>
-        <p>View more</p>
+        <h2>Total Hate Speech</h2>
       </div>
 
       <div class="card">
         <div class="card-icons">
-          <h3>7</h3>
           <div class="icon">
             <img src="{% static 'img/safe.png' %}" alt="AI Logo">
           </div>
+          <h3 id="stat-safe">...</h3>
         </div>
-        <p>View more</p>
+        <h2>Total Safe Speech</h2>
       </div>
       <div class="card">
         <div class="card-icons">
-          <div class="starburst">5</div>
           <div class="icon">
-            <img src="{% static 'img/students.png' %}"/>
+            <img src="{% static 'img/professor.png' %}"/>
           </div>
+          <h3 id="stat-reports">...</h3>
         </div>
-        <p>7</p>
+        <h2>Overall Toxicity</h2>
       </div>
 
       <div class="card">
         <div class="card-icons">
           <div class="icon">
-            <img src="{% static 'img/professor.png' %}" alt="AI Logo">
+            <img src="{% static 'img/students.png' %}" alt="AI Logo">
           </div>
-          <h3>Artificial Intelligence</h3>
+          <h3 id="stat-pct">...</h3>
         </div>
-        <p>5</p>
+        <h2>Total Hate Percentage</h2>
       </div>
     </section>
 
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

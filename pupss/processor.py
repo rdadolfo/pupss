@@ -1,11 +1,9 @@
-"""
-CSV processing helpers for hate speech detection pipeline.
-"""
-
 import csv
 import io
 from typing import Optional
-from .models import get_detector
+from pupss.tools import get_detector
+# from pupss.models import HateSpeechReport
+# from django.http import JsonResponse
 
 
 # ── column auto-detection ─────────────────────────────────────────────────────
@@ -13,6 +11,7 @@ from .models import get_detector
 TEXT_COLUMN_HINTS = [
     "text", "comment", "post", "message", "content", "tweet",
     "feedback", "review", "body", "remarks", "description",
+    # Tagalog / Filipino hints
     "mensahe", "komento", "teksto",
 ]
 
@@ -42,7 +41,7 @@ def detect_text_column(headers: list[str]) -> Optional[str]:
 def process_csv(
     file_obj,
     text_column: Optional[str] = None,
-    max_rows: int = 5000,
+    max_rows: int = None,
 ) -> dict:
     """
     Read a CSV, run hate detection on each row, return results dict.
@@ -91,7 +90,22 @@ def process_csv(
         if col not in headers:
             return _error(f"Column '{col}' not found. Available: {', '.join(headers)}")
 
-        rows_raw = list(reader)[:max_rows]
+        # Count rows and collect up to max_rows
+        if max_rows is not None:
+            try:
+                max_rows = int(max_rows)
+                if max_rows <= 0:
+                    max_rows = None
+            except ValueError:
+                return _error("max_rows must be an integer or None")
+        
+        rows_raw = []
+        row_count = 0
+        for row in reader:
+            row_count += 1
+            if max_rows is None or len(rows_raw) < max_rows:
+                rows_raw.append(row)
+        
         if not rows_raw:
             return _error("CSV file is empty.")
 
@@ -117,6 +131,7 @@ def process_csv(
             })
 
         total = len(results)
+
         return {
             "headers":     list(headers),
             "text_column": col,

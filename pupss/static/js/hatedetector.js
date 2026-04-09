@@ -44,7 +44,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const savedName = sessionStorage.getItem('hatedetector_filename') || 'previous file';
 
       // Restore filename label
-      document.getElementById('fileName').textContent = `📎 ${savedName}  (cached)`;
+      document.getElementById('fileName').textContent = `${savedName}  (cached)`;
       document.getElementById('fileName').style.display = 'block';
 
       // Restore results table
@@ -128,7 +128,7 @@ async function runDetection() {
 
   try {
     const r = await fetch('/hatedetector/process/', { method: 'POST', body: fd, headers: {
-        'X-CSRFToken': getCookie('csrftoken'), // ADD THIS HEADER
+        'X-CSRFToken': getCookie('csrftoken'), 
       } });
     const d = await r.json();
 
@@ -140,7 +140,14 @@ async function runDetection() {
       sessionStorage.setItem('hatedetector_filename', uploadedFile.name);
 
       renderResults(d);
-      showStatus(`✅ Done! Processed ${d.stats.total} rows.`);
+      // 👈 NEW LOGIC: Check the flag from Django!
+      if (d.is_cached) {
+          // Message for files already in the database
+          showStatus(`⚡ Instantly loaded previously saved results for column "${col}"!`);
+      } else {
+          // Message for brand new files
+          showStatus(`✅ Done! Processed and saved "${uploadedFile.name}" with ${d.stats.total} rows.`);
+      }
     }
   } catch (e) {
     showStatus('Server error: ' + e.message, true);
