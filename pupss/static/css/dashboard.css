@@ -8,6 +8,11 @@
   padding: 1rem 2rem;
 }
 
+.wrapper { 
+    max-width: 1100px; 
+    margin: 20px auto;
+    padding: 1rem .5rem; 
+}
 
 /* Cards Section */
 .cards {
@@ -155,6 +160,16 @@
   box-sizing: border-box;
 }
 
+.card {
+    cursor: pointer; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+}
+
 .card-icons {
   display: flex;
   align-items: center;
@@ -200,7 +215,6 @@
   transform: rotate(-45deg);
 }
 
-/* AI Icon (right card) */
 .icon {
   object-fit: cover;
   padding: 1px 2px;
@@ -213,28 +227,24 @@
   display: block;
 }
 
-/* 🔴 Design for the Hate Speech Number */
 #stat-hate {
-    color: var(--primary-fg); /* A sharp, professional red */
-    text-shadow: 1px 1px 5px rgb(0, 0, 0);
+    color: var(--primary-fg); 
+    text-shadow: 1px 1px 5px var(--muted);
 }
 
-/* 🟢 Design for the Safe Speech Number */
 #stat-safe {
-    color: var(--primary-fg); /* A calm, positive green */
-    text-shadow: 1px 1px 5px rgb(0, 0, 0);
+    color: var(--primary-fg); 
+    text-shadow: 1px 1px 5px var(--muted);
 }
 
-/* 🔵 Design for the Total Reports Number */
 #stat-reports {
-    color: var(--primary-fg); /* A professional tech blue */
-    text-shadow: 1px 1px 5px rgb(0, 0, 0);
+    color: var(--primary-fg); 
+    text-shadow: 1px 1px 5px var(--muted);
 }
 
-/* 🟣 Design for the Percentage Number */
 #stat-pct {
-    color: var(--primary-fg); /* Purple to match the AI/Professor theme */
-    text-shadow: 1px 1px 5px rgb(0, 0, 0);
+    color: var(--primary-fg);
+    text-shadow: 1px 1px 5px var(--muted);
 }
 
 /* Responsive adjustments */

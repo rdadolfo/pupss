@@ -8,8 +8,9 @@
 
 <h1 class="main-title">PUPSS Dashboard</h1>
 
+<div class="wrapper">
     <section class="cards">
-      <div class="card">
+      <div class="card" onclick="filterTable('hate')">
         <div class="card-icons">
           <div class="icon">
             <img src="{% static 'img/hatespeech_bold.png' %}"/>
@@ -19,7 +20,7 @@
         <h2>Total Hate Speech</h2>
       </div>
 
-      <div class="card">
+      <div class="card" onclick="filterTable('safe')">
         <div class="card-icons">
           <div class="icon">
             <img src="{% static 'img/safe.png' %}" alt="AI Logo">
@@ -28,7 +29,7 @@
         </div>
         <h2>Total Safe Speech</h2>
       </div>
-      <div class="card">
+      <div class="card" onclick="filterTable('all')">
         <div class="card-icons">
           <div class="icon">
             <img src="{% static 'img/professor.png' %}"/>
@@ -38,7 +39,7 @@
         <h2>Overall Toxicity</h2>
       </div>
 
-      <div class="card">
+      <div class="card" onclick="filterTable('all')">
         <div class="card-icons">
           <div class="icon">
             <img src="{% static 'img/students.png' %}" alt="AI Logo">
@@ -48,6 +49,41 @@
         <h2>Total Hate Percentage</h2>
       </div>
     </section>
+
+<div id="reportsTableContainer" style="display: none; margin-top: 20px;">
+    <h3 id="dynamicTableTitle" style="margin-bottom: 10px; color: #333;">All Reports</h3>
+    
+<table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead>
+        <tr style="background-color: #f1f1f1;">
+            <th style="padding: 12px; border: 1px solid #ddd; width: 15%;">Filename</th>
+            <th style="padding: 12px; border: 1px solid #ddd; width: 5%;">Row #</th>
+            <th style="padding: 12px; border: 1px solid #ddd; width: 40%;">Text Content</th>
+            <th style="padding: 12px; border: 1px solid #ddd; width: 10%;">Status</th>
+            <th style="padding: 12px; border: 1px solid #ddd; width: 10%;">Confidence</th> <th style="padding: 12px; border: 1px solid #ddd; width: 20%;">Highlights</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        </tbody>
+</table>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;">
+        
+        <button id="prevBtn" onclick="changePage(-1)" style="padding: 8px 16px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+            ⬅️ Previous
+        </button>
+        
+        <div id="pageNumbers" style="display: flex; gap: 5px; align-items: center;">
+            </div>
+        
+        <button id="nextBtn" onclick="changePage(1)" style="padding: 8px 16px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+            Next ➡️
+        </button>
+
+    </div>
+  </div>
+
+</div>
 
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -16,22 +16,6 @@ dropZone.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 
-// Helper to get the CSRF cookie
-const getCookie = (name) => {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
-
 // ── On page load: restore last results from sessionStorage ───────────────────
 window.addEventListener('DOMContentLoaded', () => {
   // Always start with button disabled — no file is loaded yet after refresh
@@ -73,12 +57,9 @@ async function handleFile(file) {
   fd.append('file', file);
 
   try {
-      const r = await fetch('/hatedetector/preview/', { 
+      const r = await apiFetch('/hatedetector/preview/', { 
         method: 'POST', 
-        body: fd, 
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
-        }
+        body: fd
       });
 
     const d = await r.json();
@@ -127,9 +108,7 @@ async function runDetection() {
   if (col) fd.append('text_column', col);
 
   try {
-    const r = await fetch('/hatedetector/process/', { method: 'POST', body: fd, headers: {
-        'X-CSRFToken': getCookie('csrftoken'), 
-      } });
+    const r = await apiFetch('/hatedetector/process/', { method: 'POST', body: fd });
     const d = await r.json();
 
     if (d.error) {
@@ -144,11 +123,12 @@ async function runDetection() {
       if (d.is_cached) {
           // Message for files already in the database
           showStatus(`⚡ Instantly loaded previously saved results for column "${col}"!`);
-      } else {
+        } else {
           // Message for brand new files
           showStatus(`✅ Done! Processed and saved "${uploadedFile.name}" with ${d.stats.total} rows.`);
       }
     }
+
   } catch (e) {
     showStatus('Server error: ' + e.message, true);
   }

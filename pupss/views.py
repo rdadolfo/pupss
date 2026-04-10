@@ -1,4 +1,3 @@
-import os
 import json
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
@@ -12,7 +11,6 @@ from pupss.models import HateSpeechReport
 
 
 # Create your views here.
-
 def landing(request):
     return render(request, "landing.html")
 
@@ -26,40 +24,10 @@ def dashboard(request):
 def hatedetector(request):
     return render(request, "hatedetector.html")
 
-@login_required(login_url='/')
-@permission_required('files.upload_create', raise_exception=True)
-def upload_file(request):
-    if request.method == "POST" and request.FILES.get("file"):
-        uploaded_file = request.FILES["file"]
-
-        # Ensure the upload folder exists
-        os.makedirs(settings.UPLOAD_ROOT, exist_ok=True)
-
-        # Build file path
-        file_path = os.path.join(settings.UPLOAD_ROOT, uploaded_file.name)
-
-        # Save the uploaded file
-        with open(file_path, "wb+") as destination:
-            for chunk in uploaded_file.chunks():
-                destination.write(chunk)
-
-        # Respond with JSON
-        return JsonResponse({
-            "status": "success",
-            "filename": uploaded_file.name,
-            "path": f"/upload/{uploaded_file.name}"
-        })
-
-    return JsonResponse({"error": "Invalid request"}, status=400)
-
 def custom_logout(request):
     logout(request)
     request.session.flush()  
     return redirect("landing")
-
-def upload_view(request):
-    """Render the upload page (your existing hatedetector.html)."""
-    return render(request, "hatedetector.html")
 
 
 # ── Process CSV (AJAX or form POST) ──────────────────────────────────────────
@@ -120,7 +88,7 @@ def process_view(request):
 
 
 # ── Download results as CSV ───────────────────────────────────────────────────
-
+@login_required(login_url='/')
 @require_GET
 def download_view(request):
     """Return processed results as a downloadable CSV."""
@@ -138,6 +106,7 @@ def download_view(request):
 
 # ── (Optional) column preview – detect text column before full run ─────────────
 
+@login_required(login_url='/')
 @require_POST
 def preview_columns_view(request):
     """
@@ -163,6 +132,7 @@ def preview_columns_view(request):
     return JsonResponse({"headers": headers, "detected_column": detected})
 
 
+@login_required(login_url='/')
 @require_GET
 def dashboard_data_view(request):
     # SECURITY BONUS: Let's protect this API with the exact same security you used above!
@@ -205,4 +175,70 @@ def dashboard_data_view(request):
             "overall_pct": overall_hate_pct
         },
         "table_data": table_rows
+    })
+
+
+@login_required(login_url='/')
+@require_GET
+def dashboard_rows_api(request):
+    import math
+    """Extracts, filters, and paginates individual rows from all JSON reports."""
+    
+    # 1. Get parameters from the Javascript fetch request
+    filter_type = request.GET.get('filter', 'all')
+    page = int(request.GET.get('page', 1))
+    per_page = 10 # How many rows to show per page
+    
+    all_reports = HateSpeechReport.objects.all().order_by('-created_at')
+    all_rows = []
+
+    for report in all_reports:
+        rows = report.results_data.get("rows", [])
+        
+        for idx, row in enumerate(rows):
+            # --- UPDATED MAPPING TO MATCH YOUR EXACT JSON ---
+            text_content = row.get("text", "No text found")
+            
+            # Check the "label" key instead of is_hate
+            model_label = row.get("label", "NOT HATE") 
+            is_hate = (model_label == "HATE")
+            
+            # Grab confidence and format it as a percentage (0.85 -> 85%)
+            raw_confidence = row.get("confidence", 0.0)
+            confidence_pct = f"{int(raw_confidence * 100)}%"
+            
+            # "hate_words" is called "highlights" in your JSON
+            hate_words_list = row.get("highlights", []) 
+            row_number = row.get("row_num", idx + 1)
+            # -------------------------------------------------
+
+            # Apply the filters
+            if filter_type == 'hate' and not is_hate:
+                continue 
+            if filter_type == 'safe' and is_hate:
+                continue 
+                
+            # Add it to our master list
+            all_rows.append({
+                "filename": report.original_filename,
+                "row_num": row_number,
+                "text": text_content,
+                "status": "🚨 Hate Speech" if is_hate else "✅ Safe",
+                "confidence": confidence_pct, # <-- Added confidence!
+                "hate_words": ", ".join(hate_words_list) if hate_words_list else "None"
+            })
+
+    # 5. Python Pagination (Slice the giant list into a small page)
+    total_rows = len(all_rows)
+    total_pages = max(1, math.ceil(total_rows / per_page))
+    
+    start_index = (page - 1) * per_page
+    end_index = start_index + per_page
+    paginated_rows = all_rows[start_index:end_index]
+
+    return JsonResponse({
+        "rows": paginated_rows,
+        "total_pages": total_pages,
+        "current_page": page,
+        "total_found": total_rows
     })
