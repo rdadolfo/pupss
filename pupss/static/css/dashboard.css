@@ -1,169 +1,51 @@
-/* Dashboard Page*/
+/* ==========================================================================
+   PUPSS DASHBOARD STYLES
+   ========================================================================== */
 
+/* ── 1. Typography & Global ──────────────────────────────────────────────── */
 .main-title {
-  text-align: center;
-  color: var(--main-title);
-  margin: 10px auto;
-  font-size: 28px;
-  padding: 1rem 2rem;
+    text-align: center;
+    color: var(--main-title);
+    margin: 10px auto;
+    font-size: 28px;
+    padding: 1rem 2rem;
 }
 
 .wrapper { 
     max-width: 1100px; 
     margin: 20px auto;
-    padding: 1rem .5rem; 
+    padding: 1rem 0.5rem; 
 }
 
-/* Cards Section */
+/* ── 2. Summary Cards ────────────────────────────────────────────────────── */
 .cards {
-  display: flex;
-  width: 600px;
-  margin: 0 auto;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.card {
-  flex: 1 1 45%;
-  background: var(--card-primary);
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  width: 300px;
-  box-sizing: border-box;
-}
-.card:nth-child(2) {
-  background: var(--card-secondary);
-  box-sizing: border-box;
-}
-.card:nth-child(3) {
-  background: var(--card-tertiary);
-  box-sizing: border-box;
-}
-.card:nth-child(4) {
-  background: var(--card-quarter);
-  box-sizing: border-box;
-}
-
-.card-icons {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 10px;
-}
-
-.card-icons h3 {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.card p {
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-
-/* Ban Circle icon */
-.ban-circle {
-  position: relative;
-  border: 5px solid var(--accent);
-  border-radius: 70%;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--accent);
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.ban-circle::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 3px;
-  background: var(--accent);
-  transform: rotate(-45deg);
-}
-
-/* AI Icon (right card) */
-.icon {
-  object-fit: cover;
-  padding: 1px 2px;
-  border-radius: 8px;
-}
-
-.icon img {
-  width: 110px;
-  height: 120px;
-  display: block;
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .cards {
     display: flex;
-    width: 300px;
+    width: 100%;
+    max-width: 1000px;
     margin: 0 auto;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    flex: 1 1 20%; /* Allows cards to sit 4-across on desktop */
+    min-width: 220px;
+    background: var(--card-primary);
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-  }
-}/* Dashboard Page*/
-
-.main-title {
-  text-align: center;
-  color: var(--main-title);
-  margin: 10px auto;
-  font-size: 28px;
-  padding: 1rem 2rem;
-}
-
-
-/* Cards Section */
-.cards {
-  display: flex;
-  width: 600px;
-  margin: 0 auto;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.card {
-  flex: 1 1 45%;
-  background: var(--card-primary);
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  width: 300px;
-  box-sizing: border-box;
-}
-.card:nth-child(2) {
-  background: var(--card-secondary);
-  box-sizing: border-box;
-}
-.card:nth-child(3) {
-  background: var(--card-tertiary);
-  box-sizing: border-box;
-}
-.card:nth-child(4) {
-  background: var(--card-quarter);
-  box-sizing: border-box;
-}
-
-.card {
+    text-align: left;
+    box-sizing: border-box;
     cursor: pointer; 
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+.card:nth-child(2) { background: var(--card-secondary); }
+.card:nth-child(3) { background: var(--card-tertiary); }
+.card:nth-child(4) { background: var(--card-quarter); }
 
 .card:hover {
     transform: translateY(-5px); 
@@ -171,89 +53,88 @@
 }
 
 .card-icons {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
 }
 
+/* Big Numbers inside Cards */
 .card-icons h3 {
-  font-size: 36px;
-  font-weight: bold;
-  font-weight: 800;
-  margin: 0;
-  color: var(--primary-fg);
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0;
+    color: var(--primary-fg);
 }
 
 .card p {
-  font-size: 15px;
-  line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.6;
 }
 
-
-/* Ban Circle icon */
-.ban-circle {
-  position: relative;
-  border: 5px solid var(--accent);
-  border-radius: 70%;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--accent);
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.ban-circle::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 3px;
-  background: var(--accent);
-  transform: rotate(-45deg);
-}
-
+/* ── 3. Icons & Dynamic Text ─────────────────────────────────────────────── */
 .icon {
-  object-fit: cover;
-  padding: 1px 2px;
-  border-radius: 8px;
+    object-fit: cover;
+    padding: 1px 2px;
+    border-radius: 8px;
 }
 
 .icon img {
-  width: 110px;
-  height: 120px;
-  display: block;
+    width: 60px; /* Reduced slightly so it doesn't overwhelm the text */
+    height: auto;
+    display: block;
 }
 
-#stat-hate {
+#stat-hate, #stat-safe, #stat-reports, #stat-pct {
     color: var(--primary-fg); 
     text-shadow: 1px 1px 5px var(--muted);
 }
 
-#stat-safe {
-    color: var(--primary-fg); 
-    text-shadow: 1px 1px 5px var(--muted);
+/* ── 4. Table Layout ─────────────────────────────────────────────────────── */
+.table-wrap { 
+    overflow-x: auto; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
 }
 
-#stat-reports {
-    color: var(--primary-fg); 
-    text-shadow: 1px 1px 5px var(--muted);
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.875rem; 
 }
 
-#stat-pct {
-    color: var(--primary-fg);
-    text-shadow: 1px 1px 5px var(--muted);
+th {
+    background: var(--primary); 
+    padding: 0.75rem 1rem;
+    text-align: left; 
+    font-size: 0.75rem; 
+    font-weight: 600;
+    text-transform: uppercase; 
+    letter-spacing: 0.06em;
+    color: var(--card-primary); 
+    border-bottom: 1px solid var(--primary);
+    white-space: nowrap;
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .cards {
-    display: flex;
-    width: 300px;
-    margin: 0 auto;
-    flex-direction: column;
-    align-items: center;
-  }
+td { 
+    padding: 0.7rem 1rem; 
+    border-bottom: 1px solid var(--border); 
+    vertical-align: top; 
+}
+
+tr:last-child td { border-bottom: none; }
+tr.hate-row { background: var(--hate-bg); }
+tr.safe-row { background: transparent; }
+tr:hover td { background: rgba(255,255,255,0.025); }
+
+/* ── 5. Mobile Responsiveness ────────────────────────────────────────────── */
+@media (max-width: 800px) {
+    .cards {
+        flex-direction: column;
+        align-items: center;
+    }
+    .card {
+        width: 100%;
+        max-width: 400px;
+    }
 }

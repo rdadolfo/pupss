@@ -104,8 +104,50 @@ def download_view(request):
     return response
 
 
-# ── (Optional) column preview – detect text column before full run ─────────────
+def dashboard_download_view(request):
+    import csv
+    """Generates a downloadable CSV from the database based on dashboard filters."""
+    filter_type = request.GET.get('filter', 'all')
+    
+    # 1. Setup the CSV Response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="dashboard_export_{filter_type}.csv"'
+    writer = csv.writer(response)
+    
+    # 2. Write the Header Row
+    writer.writerow(['Filename', 'Row #', 'Text Content', 'Status', 'Confidence', 'Highlights'])
 
+    # 3. Fetch Data from Database (Just like your dashboard API does)
+    all_reports = HateSpeechReport.objects.all().order_by('-created_at')
+    
+    for report in all_reports:
+        rows = report.results_data.get("rows", [])
+        
+        for idx, row in enumerate(rows):
+            model_label = row.get("label", "NOT HATE")
+            is_hate = (model_label == "HATE")
+            
+            # Apply Filters
+            if filter_type == 'hate' and not is_hate:
+                continue
+            if filter_type == 'safe' and is_hate:
+                continue
+                
+            # Clean up data for the CSV
+            confidence_pct = f"{int(row.get('confidence', 0.0) * 100)}%"
+            highlights = ", ".join(row.get("highlights", [])) if row.get("highlights") else "None"
+            status_text = "Hate Speech" if is_hate else "Safe"
+            text_content = row.get("text", "No text found")
+            row_num = row.get("row_num", idx + 1)
+            filename = report.original_filename
+            
+            # 4. Write the row to the CSV
+            writer.writerow([filename, row_num, text_content, status_text, confidence_pct, highlights])
+
+    return response
+
+
+# ── (Optional) column preview – detect text column before full run ─────────────
 @login_required(login_url='/')
 @require_POST
 def preview_columns_view(request):

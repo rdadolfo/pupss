@@ -1,174 +1,211 @@
-/* Variable */
+/* ==========================================================================
+   1. PUPSS BASE VARIABLES & THEME
+   ========================================================================== */
 
 :root {
+    /* --- Brand Colors (Untouched) --- */
     --primary: #75140c;
     --secondary: #ff0100;
     --accent: #e60000;
+    
+    /* --- Foreground / Background --- */
     --primary-fg: #fff;
     --body-fg: #333;
+    --body-bg: #ffffff;  /* Added this so the body tag below actually works! */
+    --bg: #0f1117;
+    
+    /* --- UI Cards & Surfaces --- */
     --main-title: #b30000;
     --card-primary: #f5eae9; 
     --card-secondary: #ebf5e9;
     --card-tertiary: #fff5e9; 
     --card-quarter: #e9e9f5;
     --footer: #555;
-    --muted:  #000;
-    --bg:          #0f1117;
-    --surface:     var(--card-primary);
-    --surface2:    #ff4d6d;
-    --border:      var(--primary);
+    --muted: #000;
+    --surface: var(--card-primary);
+    --surface2: #ff4d6d;
+    --border: var(--primary);
     --accent-glow: var(--card-tertiary);
-    --hate:        var(--secondary);
-    --hate-bg:     rgba(255, 77, 109, 0.12);
-    --safe:        #2ee89a;
-    --safe-bg:     rgba(46, 232, 154, 0.10);
-    --text:        var(--muted);
-    --highlight:   #ffd166;    
+    
+    /* --- Data Visualization Colors --- */
+    --hate: var(--secondary);
+    --hate-bg: rgba(255, 77, 109, 0.12);
+    --safe: #2ee89a;
+    --safe-bg: rgba(46, 232, 154, 0.10);
+    --text: var(--muted);
+    --highlight: #ffd166;    
+    
+    /* --- Buttons --- */
     --button-fg: var(--primary);
     --button-bg: var(--secondary);
-    --font-family-primary:
-        "Segoe UI",
-        system-ui,
-        Roboto,
-        "Helvetica Neue",
-        Arial,
-        sans-serif,
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
-        "Noto Color Emoji";
-    --font-family-monospace:
-        ui-monospace,
-        Menlo,
-        Monaco,
-        "Cascadia Mono",
-        "Segoe UI Mono",
-        "Roboto Mono",
-        "Oxygen Mono",
-        "Ubuntu Monospace",
-        "Source Code Pro",
-        "Fira Mono",
-        "Droid Sans Mono",
-        "Courier New",
-        monospace,
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
-        "Noto Color Emoji";
+
+    /* --- Typography --- */
+    --font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
     color-scheme: light;
 }
 
-* {
-  font-family: var(--font-family-primary);
+/* ==========================================================================
+   2. GLOBAL RESETS
+   ========================================================================== */
+
+*, *::before, *::after {
+    box-sizing: border-box; /* CRITICAL: Prevents padding from breaking responsive widths */
+    font-family: var(--font-family-primary);
 }
 
 html, body {
     height: 100%;
+    margin: 0;
+    padding: 0;
 }
- 
+
 body {
     display: flex;
     flex-direction: column;
-    margin: 0;
-    padding: 0;
+    min-height: 100vh; /* Ensures the footer always gets pushed to the bottom of the screen */
     font-size: 0.875rem;
-    font-family: var(--font-family-primary);
     color: var(--body-fg);
     background: var(--body-bg);
 }
 
 a {
-  text-decoration: none;
-  color: var(--primary-fg);
+    text-decoration: none;
+    color: var(--primary-fg);
+}
+
+/* ==========================================================================
+   3. STRUCTURAL LAYOUT CONTAINERS
+   ========================================================================== */
+
+/* Replaced fixed 600px widths with responsive max-widths */
+.header, .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1100px; /* Aligns perfectly with the wrapper below */
+    margin: 0 auto;
+    padding: 15px 20px;
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--body-bg);
-  color: var(--primary);
-  margin: 0 auto;
-  padding: 10px 0;
-  width: 600px;
-  font-family: var(--font-family-primary);
-}
-
-.wrapper { 
-  max-width: 1100px; 
-  margin: 0 auto; 
-  padding: 2rem 1.5rem; 
-}
-   
-.logo-title {
-  display: flex;
-  align-items: center;
-  font-size: 25px;
-  font-weight: bold;
-  margin: 0px 0px 10px 0px;
-}
-
-.hatedetector-btn {
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 10px;
-  background-color: var(--card-primary);
-  border-bottom: 1px solid var(--primary);
-  border-radius: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.hatedetector-btn a {
-  color: var(--body-fg);
-}
-
-.hatedetector-btn:hover {
-  background-color: var(--primary);
-  color: var(--primary-fg);
-}
-
-.hatedetector-btn:hover a {
-  color: var(--primary-fg);
-}
-
-.login-btn {
-  background: var(--accent);
-  color: var(--primary-fg);
-  border: none;
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.logout-btn {
-  background: var(--accent);
-  color: var(--primary-fg);
-  border: none;
-  padding:  8px 20px;
-  border-radius: 30px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
+    background-color: var(--body-bg);
+    color: var(--primary);
 }
 
 .footer {
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
-  margin: 0 auto;
-  padding: 10px 0;
-  width: 600px;
+    text-align: center;
+    color: var(--footer);
 }
 
+.wrapper { 
+    width: 100%;
+    max-width: 1100px; 
+    margin: 0 auto; 
+    padding: 2rem 1.5rem; 
+    flex: 1; /* Pushes the footer down if the page content is short */
+}
+
+/* ==========================================================================
+   4. TYPOGRAPHY & BRANDING
+   ========================================================================== */
+
+.logo-title {
+    display: flex;
+    align-items: center;
+    font-size: 25px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+/* ==========================================================================
+   5. BUTTON COMPONENTS
+   ========================================================================== */
+
+.hatedetector-btn {
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 10px 15px;
+    background-color: var(--card-primary);
+    border: none;
+    border-bottom: 2px solid var(--primary); /* Thicker bottom border for a tactile feel */
+    border-radius: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.hatedetector-btn a {
+    color: var(--body-fg);
+    transition: color 0.3s ease;
+}
+
+.hatedetector-btn:hover {
+    background-color: var(--primary);
+}
+
+.hatedetector-btn:hover a {
+    color: var(--primary-fg);
+}
+
+/* Grouped Login/Logout together to prevent redundant code */
+.login-btn, .logout-btn {
+    background: var(--accent);
+    color: var(--primary-fg);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+}
+
+.login-btn:hover, .logout-btn:hover {
+    opacity: 0.85; /* Adds a nice hover effect */
+}
+
+/* Pagination Buttons (Used across Dashboard and Hate Detector) */
+.page-btn { 
+    padding: 8px 16px; 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    transition: background 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f1f1f1;
+}
+
+.page-btn-num { 
+    padding: 6px 12px; 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    cursor: pointer; 
+}
+
+/* ==========================================================================
+   6. MOBILE RESPONSIVENESS
+   ========================================================================== */
+
 @media (max-width: 640px) {
-  h1 { font-size: 1.2rem; }
-  .stat-value { font-size: 1.5rem; }
-  .footer { 
-    width: 400px;
-    padding: 100px;
-  }
+    /* Stack the header and footer neatly on small screens */
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .footer { 
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px;
+    }
+
+    h1 { font-size: 1.5rem; }
+    .stat-value { font-size: 1.5rem; }
 }
