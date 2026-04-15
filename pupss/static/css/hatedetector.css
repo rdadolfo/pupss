@@ -13,7 +13,7 @@
 
 .wrapper { 
     max-width: 1100px; 
-    margin: 20px auto;
+    margin: 10px auto;
     padding: 1rem 0.5rem; 
 }
 
@@ -21,9 +21,8 @@
 .card {
     background: var(--card-primary);
     border: 2px solid var(--primary);
-    border-radius: 16px;
-    padding: 2.75rem;
-    margin-bottom: 1rem;
+    border-radius: 14px;
+    padding: 1.5rem;
 }
 
 .card-title {
@@ -32,13 +31,13 @@
     letter-spacing: 0.08em;
     text-transform: uppercase; 
     color: var(--muted); 
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
 }
 
 .drop-zone {
     border: 2px dashed var(--primary);
     border-radius: 12px; 
-    padding: 2.74rem 5rem; /* Adjusted padding to be more responsive */
+    padding: .75rem 1.5rem; /* Adjusted padding to be more responsive */
     text-align: center; 
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
@@ -64,7 +63,7 @@
 
 #fileInput { display: none; }
 #fileName {
-    margin-top: 0.75rem; 
+    margin-top: 0.25rem; 
     font-size: 0.85rem;
     color: var(--accent); 
     min-height: 1.2em;

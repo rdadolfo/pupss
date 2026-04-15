@@ -1,4 +1,5 @@
 /backup/
+pupspeechsafe/__pycache__
 pupss/__pycache__/
 pupss/hatedetector/
 pupss/migrations/
