@@ -12,6 +12,7 @@ class HateSpeechReportAdmin(admin.ModelAdmin):
     
     # Adds a filter sidebar to sort by date or user
     list_filter = ('created_at', 'created_by')
+    list_select_related = ('created_by',)
     
     # Makes the JSON data read-only so admins don't accidentally break it
     readonly_fields = ('file_hash', 'results_data')

@@ -106,21 +106,45 @@ async function handleFile(file) {
  * so the user can select which column contains the text to analyze.
  */
 function populateColumns(headers, detected) {
-    const sel = document.getElementById('columnSelect');
-    sel.innerHTML = '';
+    const textSel = document.getElementById('columnSelect');
+    const authorSel = document.getElementById('authorSelect');
+    const targetSel = document.getElementById('targetSelect');
+    textSel.innerHTML = '';
+    authorSel.innerHTML = '<option value="">-- None / Unknown --</option>';
+    targetSel.innerHTML = '<option value="">-- None / Unknown --</option>';
 
     if (headers.length === 0) {
-        sel.innerHTML = '<option value="">— auto-detect —</option>';
+        textSel.innerHTML = '<option value="">— auto-detect —</option>';
     } else {
         headers.forEach(h => {
-            const opt = document.createElement('option');
-            opt.value = h;
-            opt.textContent = h;
-            if (h === detected) opt.selected = true;
-            sel.appendChild(opt);
+            const opt1 = document.createElement('option'); // Text Column Option
+            opt1.value = h;
+            opt1.textContent = h;
+            if (h === detected) opt1.selected = true;
+            textSel.appendChild(opt1);
+
+            const opt2 = document.createElement('option'); // Author Column Option
+            opt2.value = h;
+            opt2.textContent = h;
+            authorSel.appendChild(opt2);
+
+            const opt3 = document.createElement('option'); // Target Column Option
+            opt3.value = h;
+            opt3.textContent = h;
+            targetSel.appendChild(opt3);
         });
     }
-    sel.disabled = false;
+    textSel.disabled = false;
+    authorSel.disabled = false;
+    targetSel.disabled = false;
+
+    // Attach the listener to all three dropdowns
+    textSel.onchange = updateDropdownOptions;
+    authorSel.onchange = updateDropdownOptions;
+    targetSel.onchange = updateDropdownOptions;
+
+    // Run it instantly so the auto-detected text column gets locked out!
+    updateDropdownOptions();
 }
 
 /**
@@ -137,7 +161,11 @@ async function runDetection() {
     fd.append('file', uploadedFile);
     
     const col = document.getElementById('columnSelect').value;
+    const authorCol = document.getElementById('authorSelect').value;
+    const targetCol = document.getElementById('targetSelect').value;
     if (col) fd.append('text_column', col);
+    if (authorCol) fd.append('author_column', authorCol);
+    if (targetCol) fd.append('target_column', targetCol);
 
     try {
         const r = await apiFetch('/hatedetector/process/', { method: 'POST', body: fd });
@@ -312,4 +340,33 @@ function escHtml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+/** * Scans the three column dropdowns and disables options that are already selected 
+ * in the other dropdowns to prevent duplicates.
+ */
+function updateDropdownOptions() {
+    const selects = [
+        document.getElementById('columnSelect'),
+        document.getElementById('authorSelect'),
+        document.getElementById('targetSelect')
+    ];
+
+    // 1. Find out which columns are currently selected (ignore the blank/None options)
+    const selectedValues = selects.map(s => s.value).filter(val => val !== "");
+
+    // 2. Loop through every dropdown and update its options
+    selects.forEach(select => {
+        Array.from(select.options).forEach(option => {
+            if (option.value === "") return; // Never disable the "-- None --" option
+            
+            // If this option's value is in our 'selected' list AND it is not the 
+            // one currently selected in *this specific* dropdown, disable it!
+            if (selectedValues.includes(option.value) && option.value !== select.value) {
+                option.disabled = true;
+            } else {
+                option.disabled = false;
+            }
+        });
+    });
 }

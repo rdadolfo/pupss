@@ -55,13 +55,11 @@
     font-family: var(--font-family-primary);
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
+html { margin: 0; padding: 0; }
 
 body {
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh; /* Ensures the footer always gets pushed to the bottom of the screen */
@@ -112,12 +110,25 @@ a {
    4. TYPOGRAPHY & BRANDING
    ========================================================================== */
 
+.main-title {
+    text-align: center;
+    color: var(--main-title);
+    margin: 10px auto;
+    font-size: 28px;
+    padding: 1rem 2rem;
+}
+
 .logo-title {
     display: flex;
     align-items: center;
     font-size: 25px;
     font-weight: bold;
     margin: 0 0 10px 0;
+}
+
+.logo-title img {
+    height: 110px;
+    margin-right: 10px;
 }
 
 /* ==========================================================================
@@ -154,8 +165,8 @@ a {
     background: var(--accent);
     color: var(--primary-fg);
     border: none;
-    padding: 8px 20px;
-    border-radius: 30px;
+    padding: 10px 35px;
+    border-radius: 7px;
     font-weight: bold;
     cursor: pointer;
     font-size: 14px;
@@ -166,7 +177,7 @@ a {
     opacity: 0.85; /* Adds a nice hover effect */
 }
 
-/* Pagination Buttons (Used across Dashboard and Hate Detector) */
+/* Pagination Buttons and Results Table (Used across Dashboard and Hate Detector) */
 .page-btn { 
     padding: 8px 16px; 
     background: #fff; 
@@ -187,6 +198,136 @@ a {
     border-radius: 4px; 
     cursor: pointer; 
 }
+
+.btn {
+    padding: 0.6rem 1.5rem; 
+    border-radius: 8px; 
+    border: none;
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-outline {
+    background: transparent; 
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.btn-outline:hover { 
+    background: var(--primary); 
+    color: var(--primary-fg);}
+
+#resultsSection { display: none; }
+
+.table-controls{
+    display: none; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 15px;
+    padding-top: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.35rem 0.9rem; 
+    border-radius: 20px;
+    border: 1px solid var(--border); 
+    background: var(--surface2);
+    color: var(--primary-fg); 
+    font-size: 0.8rem; 
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.filter-btn.hate-filter.active { border-color: var(--hate); color: var(--hate); background: var(--hate-bg); }
+
+.pagination {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin: 10px 0; 
+    padding: 5px; 
+    background: var(--surface); 
+    border: 1px solid var(--border); 
+    border-radius: 5px;
+}
+.btn-pagination {
+    padding: 8px 12px; 
+    background: var(--body-bg); 
+    border: 1px solid var(--border); 
+    border-radius: 4px; 
+    cursor: pointer;
+}
+
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+
+th {
+    background: var(--primary); 
+    padding: 0.75rem 1rem;
+    text-align: left; 
+    font-size: 0.75rem; 
+    font-weight: 600;
+    text-transform: uppercase; 
+    letter-spacing: 0.06em;
+    color: var(--card-primary); 
+    border-bottom: 1px solid var(--primary);
+    white-space: nowrap;
+}
+
+td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr { page-break-inside: avoid; }
+tr:last-child td { border-bottom: none; }
+tr.hate-row { background: var(--hate-bg); }
+tr.safe-row { background: transparent; }
+tr:hover td { background: rgba(255,255,255,0.025); }
+
+/* Data Visualization Classes */
+.badge {
+    display: inline-block; 
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    font-weight: 700;
+    text-transform: uppercase; 
+    letter-spacing: 0.04em; 
+    white-space: nowrap;
+}
+.badge-hate { background: var(--hate-bg); color: var(--hate); border: 1px solid var(--hate); }
+.badge-safe { background: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
+
+.confidence-bar {
+    width: 80px; 
+    height: 6px; 
+    background: var(--border);
+    border-radius: 3px; 
+    margin-top: 4px; 
+    overflow: hidden;
+}
+.confidence-fill { height: 100%; border-radius: 3px; }
+.conf-hate { background: var(--hate); }
+.conf-safe { background: var(--safe); }
+
+.highlight-chip {
+    display: inline-block; 
+    margin: 2px;
+    background: rgba(255, 209, 102, 0.18); 
+    color: var(--highlight);
+    border: 1px solid rgba(255, 209, 102, 0.35);
+    border-radius: 4px; 
+    padding: 0.1rem 0.4rem;
+    font-size: 0.75rem; 
+    font-weight: 600;
+}
+
+.text-cell { max-width: 320px; }
+.text-cell p { color: var(--text); line-height: 1.5; }
+.row-num { color: var(--muted); font-size: 0.8rem; }
 
 /* ==========================================================================
    6. MOBILE RESPONSIVENESS

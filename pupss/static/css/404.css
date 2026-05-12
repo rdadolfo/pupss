@@ -1,5 +1,36 @@
 /* 404 Page */
-.logo {
-  width: 55px;
-  margin-right: 10px;
+
+.error img {
+  width: 350px;
+  margin: 15px auto;
+  display: block;
+}
+
+.cards {
+  display: flex;
+  width: 350px;
+  margin: 0px auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.helper-title {
+    text-align: center;
+    margin: 0px auto;
+    font-size: 20px;
+    padding: 1rem 2rem;
+    color: var(--main-title);
+}
+
+@media (max-width: 640px) {
+  .cards {
+    width: 100%;
+  }
+  .error img {
+    width: 200px;
+    margin: 5px auto;
+    display: block;
+  }
+
 }

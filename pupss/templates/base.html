@@ -12,48 +12,56 @@
     <title>{% block title %} PUP SpeechSafe {% endblock %}</title>
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/menu.css' %}">
     <script src="{% static 'js/utils.js' %}"></script>
+    <script src="{% static 'js/menu.js' %}" defer></script>
   </head>
   
   <body>
 
-    <header class="header">
+<header class="header">
       
       <div class="logo-title">
         <a href="{% url 'landing' %}">
-          <img src="{% static 'admin/img/puplogo88x88.png' %}" alt="PUP Logo"> </a>
+          <img src="{% static 'img/pup.png' %}" alt="PUP Logo"> 
+        </a>
         <span>PUP SpeechSafe</span>
       </div>
   
       <div class="nav-actions" style="display: flex; gap: 15px; align-items: center;">
-        {% if not user.is_authenticated and request.path == '/' %}
-          <div class="login-btn">
-            <a href="{% url 'login' %}">Login</a>
-          </div>
-        {% else %}
-          
-          {% if request.path == '/dashboard/' %}
-            <div class="hatedetector-btn">
-              <a href="{% url 'hatedetector' %}">Hatedetector</a>
-            </div>
-          {% endif %}
-          
-          {% if request.path == '/hatedetector/' %}
-            <div class="hatedetector-btn">
-              <a href="{% url 'dashboard' %}">Dashboard</a>
-            </div>
-          {% endif %}
-          
+        
+        <!-- If the user is NOT logged in, show the Login button -->
+        {% if not user.is_authenticated %}
           {% if request.path != '/login/' %}
-            <div class="logout-btn">
-              <a href="{% url 'logout' %}">Logout</a>
+            <div class="login-btn">
+              <a href="{% url 'login' %}">Login</a>
             </div>
           {% endif %}
           
+        <!-- If the user IS logged in, show the new Dropdown Menu -->
+        {% else %}
+          <div class="dropdown-wrapper">
+            <!-- The trigger button -->
+            <button id="menuTriggerBtn" class="simple-dropbtn">
+             Menu
+            </button>
+          
+            <!-- The hidden links -->
+            <div id="simpleDropdown" class="simple-dropdown-content">
+              <!-- Using Django url tags for bulletproof routing! -->
+              <a href="{% url 'dashboard' %}">Dashboard</a>
+              <a href="{% url 'hatedetector' %}">Hate Detector</a>
+              <a href="/report">Generate Report</a>
+              
+              <hr style="margin: 0; border-top: 1px solid #ddd;">
+              <a href="{% url 'logout' %}" style="color: #e74c3c;">Logout</a>
+            </div>
+          </div>
         {% endif %}
-      </div>
 
+      </div>
     </header>
+
 
     <main style="flex: 1; display: flex; flex-direction: column;">
       

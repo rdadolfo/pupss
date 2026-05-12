@@ -6,7 +6,7 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 
-<h1 class="main-title">PUPSS Dashboard</h1>
+<h1 class="main-title">Dashboard</h1>
 
 <div class="wrapper">
     
@@ -29,44 +29,74 @@
 
         <div class="card" onclick="filterTable('all')">
             <div class="card-icons">
-                <div class="icon"><img src="{% static 'img/students.png' %}" alt="Students Logo"/></div>
+                <div class="icon"><img src="{% static 'img/stat-reports.png' %}" alt="Students Logo"/></div>
                 <h3 id="stat-reports">...</h3>
             </div>
             <h2>Reports Generated</h2>
         </div>
 
-        <div class="card" onclick="filterTable('hate')">
+        <div class="card" onclick="filterTable('toxicity')">
             <div class="card-icons">
-                <div class="icon"><img src="{% static 'img/professor.png' %}" alt="AI Logo"></div>
+                <div class="icon"><img src="{% static 'img/stat-pct.png' %}" alt="AI Logo"></div>
                 <h3 id="stat-pct">...</h3>
             </div>
             <h2>Overall Toxicity</h2>
         </div>
     </section>
 
-    <div id="reportsTableContainer" style="display: none; margin-top: 40px; scroll-margin-top: 100px;">
-        
-        <div class="table-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 id="dynamicTableTitle" style="color: #333; margin: 0;">All Reports</h3>
-            <button onclick="downloadDashboardData()" style="padding: 8px 16px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                📥 Export to CSV
-            </button>
-        </div>
+    <div id="tableControl" class="table-controls">
+        <h3 id="dynamicTableTitle" style="color: #333; margin: 0; font-size: 1.2rem;"></h3>
+        <button onclick="downloadDashboardData()" class="btn btn-outline"">
+            ⬇ Download CSV
+        </button>
+    </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;">
-            <button id="prevBtn" onclick="changePage(-1)" style="padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-                <span style="color: #75140c; font-size: 12px;">◀</span> Previous
+    <div id="recentReportsContainer" class="hide-Table">
+        <div class="pagination">
+            <button id="reportsPrevBtn" onclick="changeReportsPage(-1)" class="page-btn">
+                <span style="color: var(--primary); font-size: 12px;">◀</span> Previous
             </button>
-            <div id="pageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
-            <button id="nextBtn" onclick="changePage(1)" style="padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-                Next <span style="color: #75140c; font-size: 12px;">▶</span>
+            <div id="reportsPageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
+            <button id="reportsNextBtn" onclick="changeReportsPage(1)" class="page-btn">
+                Next <span style="color: var(--primary); font-size: 12px;">▶</span>
             </button>
         </div> 
 
         <div class="table-wrap">
             <table>
                 <thead>
-                    <tr style="background-color: #f1f1f1;">
+                    <tr>
+                        <th>Filename</th>
+                        <th>Date Processed</th>
+                        <th>Uploaded By</th>
+                        <th>Hate Rows</th>
+                        <th>Safe Rows</th>
+                        <th id="col-toxicity" style="display: none;">Toxicity %</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="reportsTableContainer" class="hide-Table">
+
+        <div class="pagination">
+            <button id="prevBtn" onclick="changePage(-1)" class="page-btn">
+                <span style="color: var(--primary); font-size: 12px;">◀</span> Previous
+            </button>
+            <div id="pageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
+            <button id="nextBtn" onclick="changePage(1)" class="page-btn">
+                Next <span style="color: var(--primary); font-size: 12px;">▶</span>
+            </button>
+        </div> 
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
                         <th>Filename</th>
                         <th>Row #</th>
                         <th>Text Content</th>
@@ -80,5 +110,8 @@
             </table>
         </div>
         
-    </div> </div> <script src="{% static 'js/dashboard.js' %}"></script>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -3,13 +3,6 @@
    ========================================================================== */
 
 /* ── 1. Typography & Global ──────────────────────────────────────────────── */
-.main-title {
-    text-align: center;
-    color: var(--main-title);
-    margin: 10px auto;
-    font-size: 28px;
-    padding: 1rem 2rem;
-}
 
 .wrapper { 
     max-width: 1100px; 
@@ -103,29 +96,16 @@ table {
     font-size: 0.875rem; 
 }
 
-th {
-    background: var(--primary); 
-    padding: 0.75rem 1rem;
-    text-align: left; 
-    font-size: 0.75rem; 
-    font-weight: 600;
-    text-transform: uppercase; 
-    letter-spacing: 0.06em;
-    color: var(--card-primary); 
-    border-bottom: 1px solid var(--primary);
-    white-space: nowrap;
+.hide-Table { 
+    display: none; 
+    margin-top: 20px; 
+    scroll-margin-top: 100px;
 }
 
-td { 
-    padding: 0.7rem 1rem; 
-    border-bottom: 1px solid var(--border); 
-    vertical-align: top; 
+.table-controls h3 {
+    color: var(--primary-fg); 
+    margin: 0;
 }
-
-tr:last-child td { border-bottom: none; }
-tr.hate-row { background: var(--hate-bg); }
-tr.safe-row { background: transparent; }
-tr:hover td { background: rgba(255,255,255,0.025); }
 
 /* ── 5. Mobile Responsiveness ────────────────────────────────────────────── */
 @media (max-width: 800px) {

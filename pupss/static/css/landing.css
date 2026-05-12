@@ -4,13 +4,6 @@
   margin-right: 10px;
 }
 
-.main-title {
-  text-align: center;
-  color: var(--main-title);
-  margin: 25px;
-  font-size: 28px;
-}
-
 /* Cards Section */
 .cards {
   display: flex;

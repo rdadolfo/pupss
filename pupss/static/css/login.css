@@ -4,7 +4,7 @@
 .cards {
   display: flex;
   width: 400px;
-  margin: 0 auto;
+  margin: 30px auto;
   flex-wrap: wrap;
   justify-content: center;
   flex-direction: column;
@@ -25,15 +25,8 @@
   text-align: center;
 }
 
-.main-title {
-  text-align: center;
-  color: var(--main-title);
-  margin: 35px;
-  margin-bottom: 55px;
-  font-size: 28px;
-}
-
 .icon img {
+  margin-top: 15px;
   margin-left: 140px;
   padding: 10px;
   width: 100px;
@@ -65,11 +58,11 @@
 /* FORM BUTTONS */
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: var(--secondary);
-    padding: 10px 15px;
+    background: var(--accent);
+    color: var(--primary-fg);
+    padding: 10px 35px;
     border: none;
     border-radius: 7px;
-    color: var(--primary-fg);
     cursor: pointer;
     font-weight: bold;
     transition: background 0.15s;

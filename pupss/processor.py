@@ -2,8 +2,6 @@ import csv
 import io
 from typing import Optional
 from pupss.tools import get_detector
-# from pupss.models import HateSpeechReport
-# from django.http import JsonResponse
 
 
 # ── column auto-detection ─────────────────────────────────────────────────────
@@ -42,6 +40,8 @@ def process_csv(
     file_obj,
     text_column: Optional[str] = None,
     max_rows: int = None,
+    author_column: Optional[str] = None,
+    target_column: Optional[str] = None,
 ) -> dict:
     """
     Read a CSV, run hate detection on each row, return results dict.
@@ -128,6 +128,8 @@ def process_csv(
                 "label":      pred["label"],
                 "confidence": pred["confidence"],
                 "highlights": pred["highlights"],
+                "author":     row.get(author_column) if author_column else None,
+                "target":     row.get(target_column) if target_column else None,
             })
 
         total = len(results)

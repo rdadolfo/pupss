@@ -26,7 +26,19 @@
                 <div class="field">
                     <label for="columnSelect">Text Column (auto-detected after upload)</label>
                     <select id="columnSelect" disabled>
-                        <option value="">— upload a file first —</option>
+                        <option value="">Upload a file first...</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="authorSelect">Student / Author Column (Optional)</label>
+                    <select id="authorSelect" disabled>
+                        <option value="">Upload a file first...</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="targetSelect">Professor / Target Column (Optional)</label>
+                    <select id="targetSelect" disabled>
+                        <option value="">Upload a file first...</option>
                     </select>
                 </div>
                 <button type="button" class="btn btn-primary" id="runBtn" disabled onclick="runDetection()">
@@ -69,13 +81,13 @@
             <button class="btn btn-outline" onclick="downloadResults()">⬇ Download CSV</button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;">
-            <button id="prevBtn" onclick="changePage(-1)" style="padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-                <span style="color: #75140c; font-size: 12px;">◀</span> Previous
+        <div class="pagination">
+            <button id="prevBtn" onclick="changePage(-1)" class="btn-pagination">
+                <span>◀</span> Previous
             </button>
             <div id="pageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
-            <button id="nextBtn" onclick="changePage(1)" style="padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-                Next <span style="color: #75140c; font-size: 12px;">▶</span>
+            <button id="nextBtn" onclick="changePage(1)" class="btn-pagination">
+                Next <span>▶</span>
             </button>
         </div> 
 
