@@ -2,30 +2,31 @@
 {% load static %}
 
 {% block title %}PUPSS | Login{% endblock %}
-{% block content %}
 
+{% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}"/>
+
 <h1 class="main-title">PUP Speech Safe</h1>
 
 <section class="cards">
-  <div class="login-header">
-      <div class="icon">
-        <img src="{% static 'img/login.png' %}" alt="login icon">
-      </div>
-  </div>
-  <div class="login-card">
-    <form method="POST" novalidate>
-        {% csrf_token %}
-        <div class="form-row">
-          {{ form.username }}
+    <div class="login-header icon-dark-mode">
+        <div class="icon">
+            <img src="{% static 'img/login.png' %}" alt="login icon">
         </div>
-        <div class="form-row">
-          {{ form.password }}
-        </div>
-      <div class="submit-row">
-        <input type="submit" value="Login" />
-      </div>
-    </form>
-  </div>
+    </div>
+    <div class="login-card">
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            <div class="form-row">
+                {{ form.username }}
+            </div>
+            <div class="form-row">
+                {{ form.password }}
+            </div>
+            <div class="submit-row">
+                <input type="submit" value="Login" class="btn" />
+            </div>
+        </form>
+    </div>
 </section>
 {% endblock %}

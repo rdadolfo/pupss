@@ -7,6 +7,7 @@ let uploadedFile = null;       // Stores the CSV file the user uploads
 let allRows = [];              // Master backup of all rows returned by the API
 let currentTableData = [];     // The currently active rows (changes when user clicks a filter)
 let currentPage = 1;           // Tracks which page of the table the user is viewing
+let currentReportId = null;
 const rowsPerPage = 10;        // Controls how many rows display per page
 
 // --- DOM Elements ---
@@ -203,6 +204,10 @@ async function runDetection() {
 function renderResults(data) {
     allRows = data.rows;
 
+    if (data.report_id) {
+        currentReportId = data.report_id;
+    }
+
     document.getElementById('statTotal').textContent = data.stats.total;
     document.getElementById('statHate').textContent  = data.stats.hate_count;
     document.getElementById('statSafe').textContent  = data.stats.not_hate_count;
@@ -250,6 +255,22 @@ function renderTable() {
             `<span class="highlight-chip">${escHtml(w)}</span>`
         ).join('') || '<span style="color:var(--muted)">—</span>';
 
+        // 🎯 Check permissions and build the Action Cell ONLY if allowed
+        const hasOverridePerms = typeof canOverride !== 'undefined' ? canOverride : false;
+        let actionCellHTML = '';
+        
+        if (hasOverridePerms) {
+            const overrideBtn = currentReportId 
+                ? `<button onclick="overrideHateDetectorRow(${currentReportId}, ${r.row_num}, '${r.label}')" class="btn btn-outline-gold" title="Override AI Classification">↻</button>` 
+                : '<span class="text-muted">—</span>';
+                
+            actionCellHTML = `
+                <td class="action-column-wrap">
+                    <div class="action-flex-container">${overrideBtn}</div>
+                </td>
+            `;
+        }
+
         const tr = document.createElement('tr');
         tr.className     = isHate ? 'hate-row' : 'safe-row';
         tr.dataset.label = r.label;
@@ -265,6 +286,7 @@ function renderTable() {
                 </div>
             </td>
             <td>${chips}</td>
+            ${actionCellHTML} <!-- 🎯 Insert the dynamic cell here -->
         `;
         tbody.appendChild(tr);
     });
@@ -369,4 +391,71 @@ function updateDropdownOptions() {
             }
         });
     });
+}
+
+/** 🎯 Handles overriding directly from the active detector window */
+async function overrideHateDetectorRow(reportId, rowNum, currentLabel) {
+    const targetStatus = currentLabel === 'HATE' ? 'NOT HATE' : 'HATE';
+    
+    const isConfirmed = await showSystemModal(
+        'override', // 🎯 Changed type to 'override' for the maroon color
+        'Override AI Classification?', 
+        `You are about to manually override Row #${rowNum} from <strong style="color:var(--hate)">${currentLabel}</strong> to <strong style="color:var(--safe)">${targetStatus}</strong>.`,
+        `Override to ${targetStatus}` // 🎯 Dynamic Button Text! (e.g., "Override to NOT HATE")
+    );
+    
+    if (!isConfirmed) return;
+
+    try {
+        const token = typeof djangoCsrfToken !== 'undefined' ? djangoCsrfToken : '';
+        const response = await fetch(`/api/row/override/${reportId}/${rowNum}/`, { 
+            method: 'POST',
+            headers: { 
+                'X-CSRFToken': token, 
+                'Content-Type': 'application/json' 
+            }
+        });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            
+            // 1. Update the active Javascript memory
+            const targetRow = allRows.find(r => r.row_num === rowNum);
+            if (targetRow) targetRow.label = targetStatus;
+
+            // 2. Recalculate stats manually
+            let hateCount = 0;
+            let safeCount = 0;
+            allRows.forEach(r => {
+                if (r.label === 'HATE') hateCount++;
+                else safeCount++;
+            });
+            
+            const total = allRows.length;
+            const pct = total > 0 ? Math.round((hateCount / total) * 100) : 0;
+
+            // 3. Update Browser Session Storage so refreshes don't wipe the change
+            const savedData = JSON.parse(sessionStorage.getItem('hatedetector_results'));
+            if (savedData) {
+                savedData.rows = allRows;
+                savedData.stats.hate_count = hateCount;
+                savedData.stats.not_hate_count = safeCount;
+                savedData.stats.hate_pct = pct;
+                sessionStorage.setItem('hatedetector_results', JSON.stringify(savedData));
+            }
+
+            // 4. Force a UI re-render
+            renderResults({ 
+                report_id: reportId,
+                rows: allRows, 
+                stats: { total: total, hate_count: hateCount, not_hate_count: safeCount, hate_pct: pct } 
+            });
+            
+        } else {
+            await showSystemModal('error', 'Override Failed', result.error || 'Permission denied.');
+        }
+    } catch (err) {
+        console.error("Override error:", err);
+        await showSystemModal('error', 'Network Failure', 'A critical network error occurred during the override.');
+    }
 }

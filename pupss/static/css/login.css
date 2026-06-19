@@ -3,39 +3,39 @@
 /* Cards Section */
 .cards {
   display: flex;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   margin: 30px auto;
-  flex-wrap: wrap;
   justify-content: center;
   flex-direction: column;
 }
 
 .login-header {
-  flex: auto;
-  max-width: 100%;
   background: var(--card-tertiary);
+  border-radius: 12px 12px 0 0; /* Smooth top corners */
 }
 
 .login-card {
-  flex: auto;
-  max-width: 100%;
   background: var(--card-primary);
   display: flex;
   flex-direction: column;
   text-align: center;
+  padding-bottom: 20px;
+  border-radius: 0 0 12px 12px; /* Smooth bottom corners */
 }
 
 .icon img {
-  margin-top: 15px;
-  margin-left: 140px;
+  margin: 20px auto; /* Perfectly centers the image without hacks */
+  display: block;
   padding: 10px;
   width: 100px;
-  height: 100px;
+  height: auto;
 }
 
 .form-row {
   padding: 10px;
-  margin: 10px auto;
+  margin: 5px auto;
+  width: 100%;
 }
 
 .submit-row {
@@ -43,41 +43,21 @@
   margin: 10px auto;
 }
 
-#id_username {
-  padding: 8px;
+/* Theme-Aware Inputs */
+#id_username, #id_password {
+  padding: 10px;
   width: 80%;
   box-sizing: border-box;
+  background-color: var(--body-bg);
+  color: var(--body-fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-family-primary);
 }
 
-#id_password {
-  padding: 8px;
-  width: 80%;
-  box-sizing: border-box;
-}
-
-/* FORM BUTTONS */
-
-.button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: var(--accent);
-    color: var(--primary-fg);
-    padding: 10px 35px;
-    border: none;
-    border-radius: 7px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.15s;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .icon img {
-    margin: 0px 40px 0px 25px;
-    padding: 35px;
-    width: 34%;
-    height: 57px;
-  } 
-  .cards {
-    flex-direction: column;
-    align-items: center;
-  }
+/* Input Focus Glow */
+#id_username:focus, #id_password:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(230, 0, 0, 0.2);
 }

@@ -1,115 +1,148 @@
 /* ==========================================================================
-   1. PUPSS BASE VARIABLES & THEME
+   1. THEME VARIABLES
    ========================================================================== */
-
 :root {
-    /* --- Brand Colors (Untouched) --- */
+    /* Brand Colors */
     --primary: #75140c;
     --secondary: #ff0100;
+    --tertiary: #b30000;
     --accent: #e60000;
+    --maroon-base: #800000;
+    --maroon-hover: #600000;
     
-    /* --- Foreground / Background --- */
+    /* Light Mode Basics */
     --primary-fg: #fff;
-    --body-fg: #333;
-    --body-bg: #ffffff;  /* Added this so the body tag below actually works! */
-    --bg: #0f1117;
+    --body-fg: #333333;
+    --body-bg: #ffffff;  
+    --bg: #f4f6f9;
+    --bg-light: #f8f9fa;
+    --text-dark: #333333;
+    --text-muted: #6c757d;
     
-    /* --- UI Cards & Surfaces --- */
-    --main-title: #b30000;
+    /* Surfaces */
+    --main-title: var(--tertiary);
     --card-primary: #f5eae9; 
     --card-secondary: #ebf5e9;
     --card-tertiary: #fff5e9; 
     --card-quarter: #e9e9f5;
-    --footer: #555;
-    --muted: #000;
+    --footer: #555555;
+    --muted: #000000;
     --surface: var(--card-primary);
     --surface2: #ff4d6d;
     --border: var(--primary);
+    --border-light: #dee2e6;
     --accent-glow: var(--card-tertiary);
+
+    /* Form & Admin Variables */
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --input-focus-ring: rgba(128, 0, 0, 0.25);
+    --header-admin-bg: rgba(128, 0, 0, 0.08);
+    --header-admin-text: #800000;
+    --header-reviewer-bg: rgba(0, 86, 179, 0.08);
+    --header-reviewer-text: #0056b3;
     
-    /* --- Data Visualization Colors --- */
+    /* Data Visualization */
     --hate: var(--secondary);
     --hate-bg: rgba(255, 77, 109, 0.12);
     --safe: #2ee89a;
     --safe-bg: rgba(46, 232, 154, 0.10);
     --text: var(--muted);
     --highlight: #ffd166;    
+    --table-hover: rgba(0, 0, 0, 0.025);
     
-    /* --- Buttons --- */
-    --button-fg: var(--primary);
-    --button-bg: var(--secondary);
-
-    /* --- Typography --- */
-    --font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --font-family-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-
+    /* Typography */
+    --font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
     color-scheme: light;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    --body-fg: #f0f2f5;
+    --body-bg: #121212;
+    --bg: #1a1d26;
+    --bg-light: #252525;
+    --text-dark: #f0f2f5;
+    --text-muted: #adb5bd;
+
+    --main-title: #ff4d4d;
+    --card-primary: #2d1a18; 
+    --card-secondary: #182d19;
+    --card-tertiary: #2d2418; 
+    --card-quarter: #1a1a2d;
+    --footer: #aaaaaa;
+    --muted: #ffffff;
+    --surface: #222222;
+    
+    --border: #3a3a3a;
+    --border-light: #3d3d3d;
+    --table-hover: rgba(255, 255, 255, 0.035);
+    --hate-bg: rgba(255, 77, 109, 0.22);
+    --safe-bg: rgba(46, 232, 154, 0.18);
+
+    /* Form & Admin Variables */
+    --card-bg: #1e1e1e;
+    --input-bg: #2a2d31;
+    --input-border: #444444;
+    --input-focus-ring: rgba(255, 77, 77, 0.25);
+    --header-admin-bg: rgba(128, 0, 0, 0.25);
+    --header-admin-text: #ff6b7a;
+    --header-reviewer-bg: rgba(0, 123, 255, 0.15);
+    --header-reviewer-text: #66b0ff;
+
+    color-scheme: dark;
 }
 
 /* ==========================================================================
    2. GLOBAL RESETS
    ========================================================================== */
-
 *, *::before, *::after {
-    box-sizing: border-box; /* CRITICAL: Prevents padding from breaking responsive widths */
+    box-sizing: border-box; 
     font-family: var(--font-family-primary);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }
 
-html { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; }
 
 body {
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Ensures the footer always gets pushed to the bottom of the screen */
+    min-height: 100vh; 
     font-size: 0.875rem;
     color: var(--body-fg);
     background: var(--body-bg);
 }
 
-a {
-    text-decoration: none;
-    color: var(--primary-fg);
-}
+a { text-decoration: none; color: var(--primary-fg); }
 
 /* ==========================================================================
-   3. STRUCTURAL LAYOUT CONTAINERS
+   3. LAYOUT CONTAINERS
    ========================================================================== */
-
-/* Replaced fixed 600px widths with responsive max-widths */
-.header, .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1100px; /* Aligns perfectly with the wrapper below */
-    margin: 0 auto;
-    padding: 15px 20px;
-}
-
-.header {
-    background-color: var(--body-bg);
-    color: var(--primary);
-}
-
-.footer {
-    text-align: center;
-    color: var(--footer);
-}
-
 .wrapper { 
     width: 100%;
     max-width: 1100px; 
     margin: 0 auto; 
     padding: 2rem 1.5rem; 
-    flex: 1; /* Pushes the footer down if the page content is short */
+    flex: 1; 
 }
+
+.header, .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1100px; 
+    margin: 0 auto;
+    padding: 15px 20px;
+}
+
+.header { background-color: var(--body-bg); color: var(--primary); }
+.footer { text-align: center; color: var(--footer); }
 
 /* ==========================================================================
    4. TYPOGRAPHY & BRANDING
    ========================================================================== */
-
 .main-title {
     text-align: center;
     color: var(--main-title);
@@ -126,15 +159,96 @@ a {
     margin: 0 0 10px 0;
 }
 
-.logo-title img {
-    height: 110px;
-    margin-right: 10px;
+/* Theme Image Toggles */
+.pup-logo-img { height: 110px; margin-right: 10px; transition: opacity 0.2s ease-in-out; }
+.logo-theme-dark { display: none !important; }
+.logo-theme-light { display: inline-block !important; }
+.theme-invert { transition: filter 0.2s ease-in-out; }
+
+[data-theme="dark"] .logo-theme-light { display: none !important; }
+[data-theme="dark"] .logo-theme-dark { 
+    display: inline-block !important;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.35));
+}
+[data-theme="dark"] .icon-dark-mode .icon img,
+[data-theme="dark"] .theme-invert {
+    filter: brightness(0) invert(100%);
 }
 
 /* ==========================================================================
-   5. BUTTON COMPONENTS
+   5. GENERAL BUTTONS
    ========================================================================== */
+/* Base Button Structure */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
 
+/* Primary Action Buttons */
+.login-btn, .logout-btn, .submit-row input, .btn-submit {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    padding: 10px 35px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+.btn-submit { background: var(--maroon-base); }
+.btn-submit a, .login-btn a, .logout-btn a { color: #ffffff !important; }
+.login-btn:hover, .logout-btn:hover, .submit-row input:hover { opacity: 0.85; }
+.btn-submit:hover { background: var(--maroon-hover); }
+
+/* Cancel & Secondary Buttons */
+.btn-cancel {
+    background: var(--bg-light);          
+    color: var(--text-dark);              
+    border: 1px solid var(--border-light);
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 7px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.btn-cancel:hover { background: var(--border-light); }
+
+/* Outline Buttons (Variations) */
+.btn-outline {
+    background: transparent; 
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.6rem 1.5rem; 
+    border-radius: 8px; 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+}
+.btn-outline:hover { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+
+.btn-maroon { background: var(--maroon-base); color: #ffffff; border: 1px solid var(--maroon-base); }
+.btn-maroon:hover { background: var(--maroon-hover); border-color: var(--maroon-hover); }
+
+.btn-outline-danger { color: #dc3545; border: 1px solid #dc3545; background: transparent; }
+.btn-outline-danger:hover { color: #fff; background: #dc3545; }
+
+.btn-outline-green { color: #28a745; border: 1px solid #28a745; background: transparent; }
+.btn-outline-green:hover { color: #fff; background: #28a745; }
+
+.btn-outline-gold { color: #b08d00; border: 1px solid #ffd700; background: transparent; }
+.btn-outline-gold:hover { color: #212529; background: #fff5e9; }
+
+/* Tool Specific Buttons */
 .hatedetector-btn {
     font-weight: bold;
     cursor: pointer;
@@ -142,96 +256,56 @@ a {
     padding: 10px 15px;
     background-color: var(--card-primary);
     border: none;
-    border-bottom: 2px solid var(--primary); /* Thicker bottom border for a tactile feel */
+    border-bottom: 2px solid var(--border); 
     border-radius: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
+.hatedetector-btn a { color: var(--body-fg); }
+.hatedetector-btn:hover { background-color: var(--primary); }
+.hatedetector-btn:hover a { color: var(--primary-fg); }
 
-.hatedetector-btn a {
-    color: var(--body-fg);
-    transition: color 0.3s ease;
+/* ==========================================================================
+   6. PAGINATION & FILTER CONTROLS
+   ========================================================================== */
+.pagination-wrapper { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+.page-numbers-bucket { display: flex; gap: 6px; }
+
+/* Page Buttons & Toggles */
+.page-btn, .page-numbers-bucket button, .btn-theme-toggle { 
+    background: var(--body-bg) !important; 
+    border: 1px solid var(--border) !important; 
+    color: var(--body-fg) !important;
+    border-radius: 4px; 
+    cursor: pointer; 
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    transition: background 0.2s ease;
 }
+.page-btn { padding: 8px 16px; }
+.page-numbers-bucket button { padding: 6px 12px; } 
+.btn-theme-toggle { padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px; }
 
-.hatedetector-btn:hover {
-    background-color: var(--primary);
+/* Hover & Active States */
+.page-btn:hover:not(:disabled), .page-numbers-bucket button:hover:not(.active), .btn-theme-toggle:hover {
+    background: var(--card-primary) !important;
 }
-
-.hatedetector-btn:hover a {
-    color: var(--primary-fg);
-}
-
-/* Grouped Login/Logout together to prevent redundant code */
-.login-btn, .logout-btn {
-    background: var(--accent);
-    color: var(--primary-fg);
-    border: none;
-    padding: 10px 35px;
-    border-radius: 7px;
+.page-numbers-bucket button.active, .filter-btn.active {
+    background: var(--highlight) !important;
+    color: #121212 !important;             
+    border-color: var(--highlight) !important;
     font-weight: bold;
-    cursor: pointer;
-    font-size: 14px;
-    transition: opacity 0.2s ease;
+    box-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
+}
+.page-btn:disabled, .page-btn[disabled] {
+    background: var(--body-bg) !important;
+    color: var(--footer) !important; 
+    border-color: var(--border) !important;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.login-btn:hover, .logout-btn:hover {
-    opacity: 0.85; /* Adds a nice hover effect */
-}
-
-/* Pagination Buttons and Results Table (Used across Dashboard and Hate Detector) */
-.page-btn { 
-    padding: 8px 16px; 
-    background: #fff; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    transition: background 0.2s;
-}
-
-.page-btn:hover:not(:disabled) {
-    background: #f1f1f1;
-}
-
-.page-btn-num { 
-    padding: 6px 12px; 
-    background: #fff; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    cursor: pointer; 
-}
-
-.btn {
-    padding: 0.6rem 1.5rem; 
-    border-radius: 8px; 
-    border: none;
-    font-size: 0.9rem; 
-    font-weight: 600; 
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-}
-
-.btn:active { transform: scale(0.97); }
-
-.btn-outline {
-    background: transparent; 
-    color: var(--accent);
-    border: 1px solid var(--accent);
-}
-
-.btn-outline:hover { 
-    background: var(--primary); 
-    color: var(--primary-fg);}
-
-#resultsSection { display: none; }
-
-.table-controls{
-    display: none; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-top: 15px;
-    padding-top: 10px;
-    flex-wrap: wrap;
-}
-
+/* Filter Controls */
+.table-controls { display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; flex-wrap: wrap; }
 .filter-btn {
     padding: 0.35rem 0.9rem; 
     border-radius: 20px;
@@ -240,30 +314,12 @@ a {
     color: var(--primary-fg); 
     font-size: 0.8rem; 
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.filter-btn.hate-filter.active { border-color: var(--hate); color: var(--hate); background: var(--hate-bg); }
-
-.pagination {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    margin: 10px 0; 
-    padding: 5px; 
-    background: var(--surface); 
-    border: 1px solid var(--border); 
-    border-radius: 5px;
-}
-.btn-pagination {
-    padding: 8px 12px; 
-    background: var(--body-bg); 
-    border: 1px solid var(--border); 
-    border-radius: 4px; 
-    cursor: pointer;
-}
-
+/* ==========================================================================
+   7. TABLES & ALIGNMENT
+   ========================================================================== */
+#resultsSection { display: none; }
 .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
 table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 
@@ -275,19 +331,36 @@ th {
     font-weight: 600;
     text-transform: uppercase; 
     letter-spacing: 0.06em;
-    color: var(--card-primary); 
-    border-bottom: 1px solid var(--primary);
+    color: #ffffff; 
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
 }
 
-td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--body-fg); }
 tr { page-break-inside: avoid; }
 tr:last-child td { border-bottom: none; }
 tr.hate-row { background: var(--hate-bg); }
 tr.safe-row { background: transparent; }
-tr:hover td { background: rgba(255,255,255,0.025); }
+tr:hover td { background: var(--table-hover); }
 
-/* Data Visualization Classes */
+.text-cell { max-width: 320px; line-height: 1.5; }
+.row-num { opacity: 0.7; font-size: 0.8rem; }
+
+/* Action Column Alignment */
+.action-column-wrap {
+    white-space: nowrap !important;
+    width: 1% !important;
+    padding: 8px 16px !important;
+}
+.action-column-wrap .btn {
+    height: 28px !important;
+    min-width: 32px;
+    padding: 0 8px;     
+}
+
+/* ==========================================================================
+   8. DATA VISUALIZATION (Badges & Charts)
+   ========================================================================== */
 .badge {
     display: inline-block; 
     padding: 0.5rem 1.5rem;
@@ -301,18 +374,6 @@ tr:hover td { background: rgba(255,255,255,0.025); }
 .badge-hate { background: var(--hate-bg); color: var(--hate); border: 1px solid var(--hate); }
 .badge-safe { background: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
 
-.confidence-bar {
-    width: 80px; 
-    height: 6px; 
-    background: var(--border);
-    border-radius: 3px; 
-    margin-top: 4px; 
-    overflow: hidden;
-}
-.confidence-fill { height: 100%; border-radius: 3px; }
-.conf-hate { background: var(--hate); }
-.conf-safe { background: var(--safe); }
-
 .highlight-chip {
     display: inline-block; 
     margin: 2px;
@@ -325,28 +386,64 @@ tr:hover td { background: rgba(255,255,255,0.025); }
     font-weight: 600;
 }
 
-.text-cell { max-width: 320px; }
-.text-cell p { color: var(--text); line-height: 1.5; }
-.row-num { color: var(--muted); font-size: 0.8rem; }
+.confidence-bar {
+    width: 80px; 
+    height: 6px; 
+    background: var(--border);
+    border-radius: 3px; 
+    margin-top: 4px; 
+    overflow: hidden;
+}
+.confidence-fill { height: 100%; border-radius: 3px; }
+.conf-hate { background: var(--hate); }
+.conf-safe { background: var(--safe); }
 
 /* ==========================================================================
-   6. MOBILE RESPONSIVENESS
+   9. SYSTEM MODAL
    ========================================================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px); 
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
 
+.modal-box {
+    background: var(--body-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 30px; width: 90%; max-width: 420px;
+    text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-20px); transition: transform 0.2s ease;
+}
+.modal-overlay.show .modal-box { transform: translateY(0); }
+
+.modal-icon { font-size: 45px; margin-bottom: 15px; line-height: 1; }
+.modal-title { margin: 0 0 10px; font-size: 1.3rem; font-weight: 700; color: var(--body-fg); }
+.modal-message { margin: 0; color: var(--footer); font-size: 0.95rem; line-height: 1.5; }
+.modal-actions { display: flex; justify-content: center; gap: 12px; }
+
+/* Modal specific buttons */
+#customModalCancel {
+    background: var(--bg); color: var(--body-fg); border: 1px solid var(--border);
+    padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px;
+    cursor: pointer; transition: background 0.2s ease;
+}
+#customModalCancel:hover { background: var(--card-primary); }
+
+#customModalConfirm {
+    background: var(--primary); color: #ffffff; border: none;
+    padding: 10px 35px; border-radius: 7px; font-weight: bold;
+    cursor: pointer; font-size: 14px; transition: background 0.2s ease;
+}
+#customModalConfirm:hover { background: var(--accent); }
+
+/* ==========================================================================
+   10. MOBILE RESPONSIVENESS
+   ========================================================================== */
 @media (max-width: 640px) {
-    /* Stack the header and footer neatly on small screens */
-    .header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    .footer { 
-        flex-direction: column;
-        gap: 10px;
-        padding: 20px;
-    }
-
+    .header { flex-direction: column; gap: 15px; text-align: center; }
+    .footer { flex-direction: column; gap: 10px; padding: 20px; }
     h1 { font-size: 1.5rem; }
-    .stat-value { font-size: 1.5rem; }
 }

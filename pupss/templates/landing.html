@@ -12,9 +12,13 @@
       <div class="card">
         <div class="card-icons">
           <div class="starburst">!@?#%&..</div>
-          <div class="ai-icon">
-            <img src="{% static 'img/hatespeech.png' %}"/>
+          
+          <!-- 🎯 THE FIX: Dedicated adaptive text wrapper block -->
+          <div class="ai-icon" style="position: relative; display: inline-block;">
+            <img src="{% static 'img/hate_speech.png' %}" alt="Hate Speech Base"/>
+            <span class="hate-overlay-text">Hatespeech</span>
           </div>
+          
         </div>
         <p>
           Hate speech is commonly defined as speech or expression meant to insult or degrade individuals or groups based on race, ethnicity, gender, sexual orientation, religion, age, or physical or mental ability. While we have the right to free speech, it can sometimes include hate speech, which can hurt others.
@@ -23,8 +27,10 @@
 
       <div class="card">
         <div class="card-icons">
-          <div class="ai-icon">
-            <img src="{% static 'img/ai_logo.png' %}" alt="AI Logo">
+          <div class="ai-icon icon-dark-mode">
+            <div class="icon">
+              <img src="{% static 'img/ai_logo.png' %}" alt="AI Logo">
+            </div>
           </div>
           <h3>Artificial Intelligence</h3>
         </div>

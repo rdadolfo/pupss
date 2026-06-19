@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import HateSpeechReport, SystemAccess
+from pupss.models import HateSpeechReport, SystemAccess
 
 # Register your models here.
 @admin.register(HateSpeechReport)

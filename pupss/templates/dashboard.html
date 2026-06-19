@@ -6,13 +6,18 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 
+<script>
+    const canDeleteReports = {% if perms.pupss.system_manage %}true{% else %}false{% endif %};
+    const djangoCsrfToken = '{{ csrf_token }}';
+</script>
+
 <h1 class="main-title">Dashboard</h1>
 
 <div class="wrapper">
     
     <section class="cards">
         <div class="card" onclick="filterTable('hate')">
-            <div class="card-icons">
+            <div class="card-icons icon-dark-mode">
                 <div class="icon"><img src="{% static 'img/hatespeech_bold.png' %}" alt="Hate Speech Logo"/></div>
                 <h3 id="stat-hate">...</h3>
             </div>
@@ -20,7 +25,7 @@
         </div>
 
         <div class="card" onclick="filterTable('safe')">
-            <div class="card-icons">
+            <div class="card-icons icon-dark-mode">
                 <div class="icon"><img src="{% static 'img/safe.png' %}" alt="Safe Logo"></div>
                 <h3 id="stat-safe">...</h3>
             </div>
@@ -28,16 +33,16 @@
         </div>
 
         <div class="card" onclick="filterTable('all')">
-            <div class="card-icons">
-                <div class="icon"><img src="{% static 'img/stat-reports.png' %}" alt="Students Logo"/></div>
+            <div class="card-icons icon-dark-mode">
+                <div class="icon"><img src="{% static 'img/stat-reports.png' %}" alt="Reports Logo"/></div>
                 <h3 id="stat-reports">...</h3>
             </div>
             <h2>Reports Generated</h2>
         </div>
 
         <div class="card" onclick="filterTable('toxicity')">
-            <div class="card-icons">
-                <div class="icon"><img src="{% static 'img/stat-pct.png' %}" alt="AI Logo"></div>
+            <div class="card-icons icon-dark-mode">
+                <div class="icon"><img src="{% static 'img/stat-pct.png' %}" alt="Toxicity Logo"></div>
                 <h3 id="stat-pct">...</h3>
             </div>
             <h2>Overall Toxicity</h2>
@@ -45,21 +50,17 @@
     </section>
 
     <div id="tableControl" class="table-controls">
-        <h3 id="dynamicTableTitle" style="color: #333; margin: 0; font-size: 1.2rem;"></h3>
-        <button onclick="downloadDashboardData()" class="btn btn-outline"">
+        <h3 id="dynamicTableTitle" style="margin: 0; font-size: 1.2rem;"></h3>
+        <button onclick="downloadDashboardData()" class="btn btn-outline">
             ⬇ Download CSV
         </button>
     </div>
 
     <div id="recentReportsContainer" class="hide-Table">
-        <div class="pagination">
-            <button id="reportsPrevBtn" onclick="changeReportsPage(-1)" class="page-btn">
-                <span style="color: var(--primary); font-size: 12px;">◀</span> Previous
-            </button>
-            <div id="reportsPageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
-            <button id="reportsNextBtn" onclick="changeReportsPage(1)" class="page-btn">
-                Next <span style="color: var(--primary); font-size: 12px;">▶</span>
-            </button>
+        <div class="pagination-wrapper">
+            <button id="reportsPrevBtn" onclick="changeReportsPage(-1)" class="page-btn">◀ Previous</button>
+            <div id="reportsPageNumbers" class="page-numbers-bucket"></div>
+            <button id="reportsNextBtn" onclick="changeReportsPage(1)" class="page-btn">Next ▶</button>
         </div> 
 
         <div class="table-wrap">
@@ -72,6 +73,7 @@
                         <th>Hate Rows</th>
                         <th>Safe Rows</th>
                         <th id="col-toxicity" style="display: none;">Toxicity %</th>
+                        <th id="col-action">Action</th> 
                     </tr>
                 </thead>
                 <tbody id="reportsTableBody">
@@ -82,15 +84,10 @@
 
 
     <div id="reportsTableContainer" class="hide-Table">
-
-        <div class="pagination">
-            <button id="prevBtn" onclick="changePage(-1)" class="page-btn">
-                <span style="color: var(--primary); font-size: 12px;">◀</span> Previous
-            </button>
-            <div id="pageNumbers" style="display: flex; gap: 5px; align-items: center;"></div>
-            <button id="nextBtn" onclick="changePage(1)" class="page-btn">
-                Next <span style="color: var(--primary); font-size: 12px;">▶</span>
-            </button>
+        <div class="pagination-wrapper">
+            <button id="prevBtn" onclick="changePage(-1)" class="page-btn">◀ Previous</button>
+            <div id="pageNumbers" class="page-numbers-bucket"></div>
+            <button id="nextBtn" onclick="changePage(1)" class="page-btn">Next ▶</button>
         </div> 
 
         <div class="table-wrap">
@@ -102,16 +99,17 @@
                         <th>Text Content</th>
                         <th>Status</th>
                         <th>Confidence</th> 
-                        <th>Highlights</th>
+                        <th id="col-highlights">Highlights</th>
+                        <th id="col-action-deep" style="width: 90px;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
         
     </div>
 </div>
-
+<script src="{% static 'js/modal.js' %}"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -3,7 +3,6 @@
    ========================================================================== */
 
 /* ── 1. Typography & Global ──────────────────────────────────────────────── */
-
 .wrapper { 
     max-width: 1100px; 
     margin: 20px auto;
@@ -22,7 +21,7 @@
 }
 
 .card {
-    flex: 1 1 20%; /* Allows cards to sit 4-across on desktop */
+    flex: 1 1 20%; 
     min-width: 220px;
     background: var(--card-primary);
     margin-top: 20px;
@@ -57,7 +56,6 @@
     font-size: 36px;
     font-weight: 800;
     margin: 0;
-    color: var(--primary-fg);
 }
 
 .card p {
@@ -66,36 +64,19 @@
 }
 
 /* ── 3. Icons & Dynamic Text ─────────────────────────────────────────────── */
-.icon {
-    object-fit: cover;
-    padding: 1px 2px;
-    border-radius: 8px;
-}
-
-.icon img {
-    width: 60px; /* Reduced slightly so it doesn't overwhelm the text */
+.card-icons .icon img {
+    width: 45px; 
     height: auto;
     display: block;
+    transition: filter 0.2s ease-in-out; 
 }
 
 #stat-hate, #stat-safe, #stat-reports, #stat-pct {
-    color: var(--primary-fg); 
-    text-shadow: 1px 1px 5px var(--muted);
+    color: #ffffff; /* Locked to white so it looks good on dark cards */
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4); /* Locked to black shadow so it doesn't vanish in dark mode */
 }
 
 /* ── 4. Table Layout ─────────────────────────────────────────────────────── */
-.table-wrap { 
-    overflow-x: auto; 
-    border-radius: 12px; 
-    border: 1px solid var(--border); 
-}
-
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 0.875rem; 
-}
-
 .hide-Table { 
     display: none; 
     margin-top: 20px; 
@@ -103,8 +84,40 @@ table {
 }
 
 .table-controls h3 {
-    color: var(--primary-fg); 
+    color: var(--body-fg) !important; 
     margin: 0;
+}
+
+/* ==========================================================================
+   6. SYNCHRONIZED ACTION BUTTONS (Imported from Admin)
+   ========================================================================== */
+
+/* Gold Outline Button (Used for Override/Edit) */
+.btn-outline-gold { 
+    color: #b08d00; 
+    border: 1px solid #ffd700; 
+    background: transparent; 
+}
+.btn-outline-gold:hover { 
+    color: #212529; 
+    background: #fff5e9; 
+}
+
+/* Dark Mode fixes for the gold button */
+[data-theme="dark"] .btn-outline-gold { 
+    color: #ffd700; 
+}
+[data-theme="dark"] .btn-outline-gold:hover { 
+    color: #121212; 
+    background: #ffd700; 
+}
+
+/* Replaces Bootstrap's flexbox utility classes for the action column */
+.action-flex-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
 }
 
 /* ── 5. Mobile Responsiveness ────────────────────────────────────────────── */

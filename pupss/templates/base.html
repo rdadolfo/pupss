@@ -10,6 +10,15 @@
     <meta http-equiv="Expires" content="0">    
     
     <title>{% block title %} PUP SpeechSafe {% endblock %}</title>
+    <link id="favicon" rel="icon" type="image/png" href="{% static 'img/pup-light.png' %}">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('pupss-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', savedTheme || (prefersDark ? 'dark' : 'light'));
+        })();
+    </script>
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/menu.css' %}">
@@ -19,18 +28,21 @@
   
   <body>
 
-<header class="header">
-      
+    <header class="header">
       <div class="logo-title">
         <a href="{% url 'landing' %}">
-          <img src="{% static 'img/pup.png' %}" alt="PUP Logo"> 
+          <img src="{% static 'img/pup-light.png' %}" class="pup-logo-img logo-theme-light" alt="PUP Logo Light"> 
+      <img src="{% static 'img/pup-dark.png' %}" class="pup-logo-img logo-theme-dark" alt="PUP Logo Dark">
         </a>
         <span>PUP SpeechSafe</span>
       </div>
   
       <div class="nav-actions" style="display: flex; gap: 15px; align-items: center;">
         
-        <!-- If the user is NOT logged in, show the Login button -->
+        <button id="globalThemeToggleBtn" onclick="toggleGlobalTheme()" class="btn-theme-toggle" title="Toggle Display Mode">
+          🌙 Dark Mode
+        </button>
+
         {% if not user.is_authenticated %}
           {% if request.path != '/login/' %}
             <div class="login-btn">
@@ -38,23 +50,31 @@
             </div>
           {% endif %}
           
-        <!-- If the user IS logged in, show the new Dropdown Menu -->
         {% else %}
           <div class="dropdown-wrapper">
-            <!-- The trigger button -->
             <button id="menuTriggerBtn" class="simple-dropbtn">
              Menu
             </button>
           
-            <!-- The hidden links -->
             <div id="simpleDropdown" class="simple-dropdown-content">
-              <!-- Using Django url tags for bulletproof routing! -->
-              <a href="{% url 'dashboard' %}">Dashboard</a>
-              <a href="{% url 'hatedetector' %}">Hate Detector</a>
-              <a href="/report">Generate Report</a>
+                {% if perms.pupss.audit_read %}
+                  <a href="{% url 'dashboard' %}">Dashboard</a>
+                {% endif %}
+
+                {% if perms.pupss.detector_execute %}
+                    <a href="{% url 'hatedetector' %}">Hate Detector</a>
+                {% endif %}
+
+                {% if perms.pupss.report_export %}
+                    <a href="{% url 'report_generation' %}">Generate Report</a>
+                {% endif %}
+
+                {% if perms.pupss.system_manage %}
+                    <a href="{% url 'admin_setting' %}">Admin Settings</a>
+                {% endif %}
               
-              <hr style="margin: 0; border-top: 1px solid #ddd;">
-              <a href="{% url 'logout' %}" style="color: #e74c3c;">Logout</a>
+                <hr class="dropdown-divider">
+                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             </div>
           </div>
         {% endif %}
@@ -62,22 +82,9 @@
       </div>
     </header>
 
-
     <main style="flex: 1; display: flex; flex-direction: column;">
-      
-      {% if messages %}
-        <div class="messages" style="max-width: 1100px; margin: 10px auto; width: 100%; text-align: center;">
-          {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-          
       {% block content %} 
       {% endblock content %}
-      
     </main>
   
     <footer class="footer" style="justify-content: center;">
@@ -86,9 +93,22 @@
           PUPSS values privacy. All data is securely stored, used only for this service, and never shared. 
           It strictly secures every data from unauthorized access.
         </p>
-        <span style="font-weight: bold;">©2025 PUP SpeechSafe</span>
+        <span style="font-weight: bold;">©2026 PUP SpeechSafe</span>
       </div>
     </footer>
 
+    <div id="customModalOverlay" class="modal-overlay">
+        <div class="modal-box custom-form-card">
+            <div id="modalIcon" class="modal-icon">⚠️</div>
+            <h3 id="customModalTitle" class="modal-title" style="color: var(--body-fg);"></h3>
+            <p id="customModalMessage" class="modal-message"></p>
+            <hr style="border-color: var(--border-light);">
+            <div class="modal-actions mt-4">
+                <button id="customModalCancel" class="btn-cancel">Cancel</button>
+                <button id="customModalConfirm" class="btn-submit">Confirm</button>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/base.js' %}"></script>
   </body>
 </html>
