@@ -5,7 +5,7 @@ import math
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST, require_GET
 from django.db.models import Count
@@ -20,6 +20,11 @@ from pupss.models import HateSpeechReport
 from pupss.pdf_service import generate_rml_insight_report
 from pupss.forms import PUPSSCustomUserCreationForm, CustomUserUpdateForm, PUPSSCustomGroupCreationForm, CustomGroupUpdateForm
 
+class Echo:
+    """An object that implements just the write method of the file-like interface."""
+    def write(self, value):
+        return value
+    
 # ── HTML Web Pages ───────────────────────────────────────────────────────────
 def landing(request):
     return render(request, "landing.html")
@@ -32,11 +37,15 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def hatedetector(request):
-    return render(request, "hatedetector.html")
+    if request.user.has_perm('pupss.detector_execute'):
+        return render(request, "hatedetector.html")
+    return redirect("landing")
 
 @login_required(login_url='login')
 def report_generation(request):
-    return render(request, "report_generation.html")
+    if request.user.has_perm('pupss.report_export'):
+        return render(request, "report_generation.html")
+    return redirect("landing")
 
 def custom_logout(request):
     logout(request)
@@ -119,27 +128,26 @@ def process_view(request):
 @login_required
 @permission_required('pupss.audit_read', raise_exception=True)
 def dashboard_data_view(request):
-    """Returns summary statistics and a paginated list of recent reports."""
-    if not request.user.groups.filter(name__in=["Manager", "Admin", "Auditor"]).exists() and not request.user.is_superuser:
-        return JsonResponse({"error": "Forbidden: Requires Admin privileges"}, status=403)
-
     page = int(request.GET.get('page', 1))
     per_page = 10 
-
-    all_reports = HateSpeechReport.objects.all().order_by('-created_at')
-    total_reports = all_reports.count()
     
-    grand_total_rows = 0
-    grand_total_hate = 0
-    grand_total_safe = 0
-    all_table_rows = []
-
-    for report in all_reports:
-        stats = report.results_data.get("stats", {})
+    # 🎯 OPTIMIZATION: Extract raw dictionary chunks directly to avoid Python model object build overhead
+    grand_total_rows, grand_total_hate, grand_total_safe = 0, 0, 0
+    for data in HateSpeechReport.objects.values_list('results_data', flat=True).iterator():
+        stats = data.get("stats", {})
         grand_total_rows += stats.get("total", 0)
         grand_total_hate += stats.get("hate_count", 0)
         grand_total_safe += stats.get("not_hate_count", 0)
-        
+
+    total_reports = HateSpeechReport.objects.count()
+    start_index = (page - 1) * per_page
+    
+    all_table_rows = []
+    # 🎯 OPTIMIZATION: Dynamic SQL window-slicing keeps data load locked strictly to 10 entities
+    paginated_reports = HateSpeechReport.objects.all().order_by('-created_at')[start_index:start_index + per_page]
+
+    for report in paginated_reports:
+        stats = report.results_data.get("stats", {})
         all_table_rows.append({
             "id": report.id,
             "filename": report.original_filename,
@@ -152,8 +160,6 @@ def dashboard_data_view(request):
 
     overall_hate_pct = round((grand_total_hate / grand_total_rows) * 100, 2) if grand_total_rows > 0 else 0
     total_pages = max(1, math.ceil(total_reports / per_page))
-    start_index = (page - 1) * per_page
-    paginated_reports = all_table_rows[start_index:start_index + per_page]
 
     return JsonResponse({
         "summary": {
@@ -163,7 +169,7 @@ def dashboard_data_view(request):
             "total_safe": grand_total_safe,
             "overall_pct": overall_hate_pct
         },
-        "table_data": paginated_reports,
+        "table_data": all_table_rows,
         "current_page": page,
         "total_pages": total_pages
     })
@@ -176,46 +182,72 @@ def dashboard_rows_api(request):
     page = int(request.GET.get('page', 1))
     per_page = 10 
     
-    all_reports = HateSpeechReport.objects.all().order_by('-created_at')
-    all_rows = []
+    start_index = (page - 1) * per_page
+    
+    # 🎯 OPTIMIZATION: Fast metadata counter using stats blocks inside the database iterator stream
+    total_rows = 0
+    for data in HateSpeechReport.objects.values_list('results_data', flat=True).iterator():
+        stats = data.get("stats", {})
+        if filter_type == 'hate':
+            total_rows += stats.get("hate_count", 0)
+        elif filter_type == 'safe':
+            total_rows += stats.get("not_hate_count", 0)
+        else:
+            total_rows += stats.get("total", 0)
 
-    for report in all_reports:
-        rows = report.results_data.get("rows", [])
-        for idx, row in enumerate(rows):
+    # 🎯 OPTIMIZATION: Short-Circuit math evaluation matrix blocks processing after collecting the needed 10 items
+    target_rows = []
+    current_idx = 0
+
+    for report in HateSpeechReport.objects.all().order_by('-created_at').iterator():
+        data = report.results_data
+        stats = data.get("stats", {})
+        
+        report_relevant_count = stats.get("total", 0)
+        if filter_type == 'hate':
+            report_relevant_count = stats.get("hate_count", 0)
+        elif filter_type == 'safe':
+            report_relevant_count = stats.get("not_hate_count", 0)
+            
+        if current_idx + report_relevant_count <= start_index:
+            current_idx += report_relevant_count
+            continue
+            
+        for idx, row in enumerate(data.get("rows", [])):
             model_label = row.get("label", "NOT HATE") 
             is_hate = (model_label == "HATE")
             
             if filter_type == 'hate' and not is_hate: continue 
             if filter_type == 'safe' and is_hate: continue 
-                
-            hate_words_list = row.get("highlights", []) 
-            all_rows.append({
-                "report_id": report.id,                # 🎯 NEW: Send Report ID
-                "raw_label": model_label,              # 🎯 NEW: Send raw label for toggle logic
-                "filename": report.original_filename,
-                "row_num": row.get("row_num", idx + 1),
-                "text": row.get("text", "No text found"),
-                "status": "🚨 Hate Speech" if is_hate else "✅ Safe",
-                "confidence": f"{int(row.get('confidence', 0.0) * 100)}%", 
-                "hate_words": ", ".join(hate_words_list) if hate_words_list else "None"
-            })
+            
+            if start_index <= current_idx < start_index + per_page:
+                hate_words_list = row.get("highlights", []) 
+                target_rows.append({
+                    "report_id": report.id,                
+                    "raw_label": model_label,              
+                    "row_num": row.get("row_num", idx + 1),
+                    "text": row.get("text", "No text found"),
+                    "status": "🚨 Hate Speech" if is_hate else "✅ Safe",
+                    "confidence": f"{int(row.get('confidence', 0.0) * 100)}%", 
+                    "hate_words": ", ".join(hate_words_list) if hate_words_list else "None"
+                })
+            
+            current_idx += 1
+            if current_idx >= start_index + per_page: break 
+        if current_idx >= start_index + per_page: break
 
-    total_rows = len(all_rows)
     total_pages = max(1, math.ceil(total_rows / per_page))
-    start_index = (page - 1) * per_page
 
     return JsonResponse({
-        "rows": all_rows[start_index:start_index + per_page],
+        "rows": target_rows,
         "total_pages": total_pages,
         "current_page": page,
         "total_found": total_rows
     })
 
-# so both Admins AND Managers can override rows.
 @require_POST
 @login_required
 def api_override_row(request, report_id, row_num):
-    # Security Check: Must have either system admin or detector execution privileges
     if not (request.user.has_perm('pupss.system_manage') or request.user.has_perm('pupss.detector_execute')):
         return JsonResponse({'success': False, 'error': 'Permission denied. You do not have access to override results.'}, status=403)
 
@@ -224,26 +256,26 @@ def api_override_row(request, report_id, row_num):
         data = report.results_data
         rows = data.get("rows", [])
 
-        # Find the specific row in the JSON
         target_row = next((r for r in rows if r.get("row_num") == row_num), None)
         if not target_row:
             return JsonResponse({'success': False, 'error': 'Row not found in report.'}, status=404)
 
-        # Toggle the Label
         current_label = target_row.get("label", "NOT HATE")
         new_label = "NOT HATE" if current_label == "HATE" else "HATE"
         target_row["label"] = new_label
 
-        # Recalculate stats so the dashboard summary cards stay accurate
-        hate_count = sum(1 for r in rows if r.get("label") == "HATE")
-        total = len(rows)
-        data["stats"]["hate_count"] = hate_count
-        data["stats"]["not_hate_count"] = total - hate_count
-        data["stats"]["hate_pct"] = round((hate_count / total) * 100) if total > 0 else 0
+        total = data["stats"]["total"]
+        if new_label == "HATE":
+            data["stats"]["hate_count"] += 1
+            data["stats"]["not_hate_count"] -= 1
+        else:
+            data["stats"]["hate_count"] -= 1
+            data["stats"]["not_hate_count"] += 1
 
-        # Save back to database
+        data["stats"]["hate_pct"] = round((data["stats"]["hate_count"] / total) * 100) if total > 0 else 0
+
         report.results_data = data
-        report.save()
+        report.save(update_fields=['results_data']) # 🎯 OPTIMIZATION: Avoid rewriting full DB row index bounds
 
         return JsonResponse({'success': True, 'message': f'Override successful. New status: {new_label}'})
     except HateSpeechReport.DoesNotExist:
@@ -270,68 +302,57 @@ def hatedetector_download_view(request):
 @require_GET
 @permission_required('pupss.report_export', raise_exception=True)
 def dashboard_download_view(request):
-    """Generates a downloadable CSV from the database based on dashboard filters."""
+    """Generates a downloadable CSV via memory-safe data generation streams."""
     filter_type = request.GET.get('filter', 'all')
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="dashboard_export_{filter_type}.csv"'
-    writer = csv.writer(response)
-    all_reports = HateSpeechReport.objects.all().order_by('-created_at')
     
-    if filter_type == 'all':
-        writer.writerow(['Filename', 'Date Processed', 'Uploaded By', 'Hate Rows', 'Safe Rows'])
-        for report in all_reports:
-            stats = report.results_data.get("stats", {})
-            writer.writerow([
-                report.original_filename,
-                report.created_at.strftime("%Y-%m-%d %H:%M"),
-                report.created_by.username if report.created_by else "Guest",
-                stats.get("hate_count", 0),
-                stats.get("not_hate_count", 0)
-            ])
-    elif filter_type == 'toxicity':
-        writer.writerow(['Filename', 'Date Processed', 'Uploaded By', 'Hate Rows', 'Safe Rows', 'Toxicity %'])
-        for report in all_reports:
-            stats = report.results_data.get("stats", {})
-            total = stats.get("total", 0)
-            hate = stats.get("hate_count", 0)
-            safe = stats.get("not_hate_count", 0)
-            toxicity_pct = round((hate / total) * 100, 2) if total > 0 else 0
-            writer.writerow([
-                report.original_filename,
-                report.created_at.strftime("%Y-%m-%d %H:%M"),
-                report.created_by.username if report.created_by else "Guest",
-                hate, safe, f"{toxicity_pct}%"
-            ])
-    else:
-        writer.writerow(['Filename', 'Row #', 'Text Content', 'Status', 'Confidence', 'Highlights'])
-        for report in all_reports:
-            for idx, row in enumerate(report.results_data.get("rows", [])):
-                is_hate = (row.get("label", "NOT HATE") == "HATE")
-                if filter_type == 'hate' and not is_hate:
-                    continue
-                if filter_type == 'safe' and is_hate:
-                    continue
-                    
-                writer.writerow([
-                    report.original_filename,
-                    row.get("row_num", idx + 1),
-                    row.get("text", "No text found"),
-                    "Hate Speech" if is_hate else "Safe",
-                    f"{int(row.get('confidence', 0.0) * 100)}%",
-                    ", ".join(row.get("highlights", [])) if row.get("highlights") else "None"
+    def csv_generator():
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        
+        if filter_type == 'all':
+            yield writer.writerow(['Filename', 'Date Processed', 'Uploaded By', 'Hate Rows', 'Safe Rows'])
+            for report in HateSpeechReport.objects.all().order_by('-created_at').iterator():
+                stats = report.results_data.get("stats", {})
+                yield writer.writerow([
+                    report.original_filename, report.created_at.strftime("%Y-%m-%d %H:%M"),
+                    report.created_by.username if report.created_by else "Guest",
+                    stats.get("hate_count", 0), stats.get("not_hate_count", 0)
                 ])
-    return response
+        elif filter_type == 'toxicity':
+            yield writer.writerow(['Filename', 'Date Processed', 'Uploaded By', 'Hate Rows', 'Safe Rows', 'Toxicity %'])
+            for report in HateSpeechReport.objects.all().order_by('-created_at').iterator():
+                stats = report.results_data.get("stats", {})
+                total = stats.get("total", 0)
+                hate = stats.get("hate_count", 0)
+                toxicity_pct = round((hate / total) * 100, 2) if total > 0 else 0
+                yield writer.writerow([
+                    report.original_filename, report.created_at.strftime("%Y-%m-%d %H:%M"),
+                    report.created_by.username if report.created_by else "Guest",
+                    hate, stats.get("not_hate_count", 0), f"{toxicity_pct}%"
+                ])
+        else:
+            yield writer.writerow(['Filename', 'Row #', 'Text Content', 'Status', 'Confidence', 'Highlights'])
+            for report in HateSpeechReport.objects.all().order_by('-created_at').iterator():
+                for idx, row in enumerate(report.results_data.get("rows", [])):
+                    is_hate = (row.get("label", "NOT HATE") == "HATE")
+                    if (filter_type == 'hate' and not is_hate) or (filter_type == 'safe' and is_hate):
+                        continue
+                    yield writer.writerow([
+                        report.original_filename, row.get("row_num", idx + 1),
+                        row.get("text", "No text found"), "Hate Speech" if is_hate else "Safe",
+                        f"{int(row.get('confidence', 0.0) * 100)}%",
+                        ", ".join(row.get("highlights", [])) if row.get("highlights") else "None"
+                    ])
 
+    response = StreamingHttpResponse(csv_generator(), content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="dashboard_export_{filter_type}.csv"'
+    return response
 
 # ── Generate Insights API Endpoints ──────────────────────────────────────────
 @require_GET
 @login_required
 @permission_required('pupss.report_export', raise_exception=True)
 def generate_insights_api(request):
-    """Analyse records to output dashboard graph configurations or PDF streams."""
-    if not request.user.groups.filter(name__in=["Manager", "Admin", "Auditor"]).exists() and not request.user.is_superuser:
-        return JsonResponse({"error": "Forbidden: Requires Admin privileges"}, status=403)
-
     file_id = request.GET.get('file', 'all')
     entity_type = request.GET.get('entity', 'student') 
     action = request.GET.get('action', 'json') 
@@ -344,7 +365,7 @@ def generate_insights_api(request):
     reports = HateSpeechReport.objects.all() if file_id == 'all' else HateSpeechReport.objects.filter(id=file_id)
     entity_stats = {}
 
-    for report in reports:
+    for report in reports.iterator():
         for row in report.results_data.get('rows', []):
             category = 'hate' if str(row.get("label", "SAFE")).upper() == "HATE" else 'safe'
             column_key = "author" if entity_type == 'student' else "target"
@@ -385,7 +406,6 @@ def generate_insights_api(request):
         "table_data": top_entities 
     })
 
-
 # ── Identity Management Admin Section ────────────────────────────────────────
 @login_required
 @permission_required('pupss.system_manage', raise_exception=True)
@@ -399,14 +419,13 @@ def admin_settings(request):
             if user_form.is_valid():
                 user_form.save()
                 messages.success(request, 'New PUPSS user created and roles assigned!')
-                return redirect('admin_setting')  # 🎯 FIX: Adjusted from 'manage_users_and_groups' to match url mappings
-                
+                return redirect('admin_setting')                  
         elif 'submit_group' in request.POST:
             group_form = PUPSSCustomGroupCreationForm(request.POST)
             if group_form.is_valid():
                 group_form.save()
                 messages.success(request, f"New group '{group_form.cleaned_data['name']}' created!")
-                return redirect('admin_setting')  # 🎯 FIX: Adjusted redirect destination to resolve 404 ReverseMatch bugs
+                return redirect('admin_setting')  
 
     context = {
         'user_form': user_form,
@@ -438,9 +457,6 @@ def admin_user_api(request):
 @login_required
 @permission_required('pupss.system_manage', raise_exception=True)
 def admin_group_api(request):
-    if not request.user.is_superuser and not request.user.groups.filter(name__in=["Manager", "Admin", "Auditor"]).exists():
-        return JsonResponse({"error": "Forbidden: Requires Admin privileges"}, status=403)
-    
     groups = Group.objects.select_related('profile').annotate(member_count=Count('user')).order_by('name')
     groups_payload = [{
         'id': g.id,
@@ -495,13 +511,13 @@ def create_group(request):
 def edit_group(request, group_id):
     group_obj = get_object_or_404(Group, id=group_id)
     if request.method == 'POST':
-        form = CustomGroupUpdateForm(request.POST, instance=group_obj)  # 🎯 FIX: Changed from CreationForm to UpdateForm
+        form = CustomGroupUpdateForm(request.POST, instance=group_obj) 
         if form.is_valid():
             form.save()
             messages.success(request, f'Group "{group_obj.name}" updated successfully!')
             return redirect('admin_setting')
     else:
-        form = CustomGroupUpdateForm(instance=group_obj)  # 🎯 FIX: Changed to track operational descriptions across profiles
+        form = CustomGroupUpdateForm(instance=group_obj)  
     return render(request, 'registration/edit_group.html', {'group_obj': group_obj, 'form': form})
 
 @require_POST
@@ -510,10 +526,20 @@ def edit_group(request, group_id):
 def delete_user_api(request, user_id):
     if request.user.id == int(user_id):
         return JsonResponse({"success": False, "error": "Self-destruction blocked. You cannot delete your own account."}, status=400)
+    
     user_obj = get_object_or_404(User, id=user_id)
     target_name = user_obj.username
     user_obj.delete()
-    return JsonResponse({"success": True, "message": f"Account '{target_name}' has been permanently purged."})
+
+    new_total_users = User.objects.count()
+    new_total_groups = Group.objects.count()
+
+    return JsonResponse({
+        "success": True, 
+        "message": f"Account '{target_name}' has been permanently purged.",
+        "total_users": new_total_users,
+        "total_groups": new_total_groups
+    })
 
 @require_POST
 @login_required
@@ -521,10 +547,20 @@ def delete_user_api(request, user_id):
 def delete_group_api(request, group_id):
     if request.user.groups.filter(id=int(group_id)).exists():
         return JsonResponse({"success": False, "error": "Self-destruction blocked. You cannot delete your own active group association."}, status=400)
+    
     group_obj = get_object_or_404(Group, id=group_id)
     target_name = group_obj.name
     group_obj.delete()
-    return JsonResponse({"success": True, "message": f"Group policy layer '{target_name}' has been removed successfully."})
+    
+    new_total_users = User.objects.count()
+    new_total_groups = Group.objects.count()
+
+    return JsonResponse({
+        "success": True, 
+        "message": f"Group policy layer '{target_name}' has been removed successfully.",
+        "total_users": new_total_users,
+        "total_groups": new_total_groups
+    })
 
 @login_required
 @permission_required('pupss.user_manage', raise_exception=True)
@@ -548,7 +584,6 @@ def admin_change_password(request, user_id):
 @permission_required('pupss.system_manage', raise_exception=True)
 def api_delete_report(request, report_id):
     try:
-        # Replace 'Report' with your actual model name
         report = HateSpeechReport.objects.get(id=report_id)
         report.delete()
         return JsonResponse({'success': True, 'message': 'Report and all associated rows permanently deleted.'})

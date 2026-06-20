@@ -2,38 +2,37 @@
    1. GLOBAL STATE
    ========================================================================== */
 let currentFilter = 'all';
-let currentPage = 1;          // Pagination for the Deep Dive Rows Table
-let currentReportsPage = 1;   // Pagination for the Recent Reports Table
+let currentPage = 1;          
+let currentReportsPage = 1;   
 
 /* ==========================================================================
    2. INITIALIZATION (Clean Page Load)
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", async () => {
-   
-    // 🌟 ENSURE BOTH TABLES ARE HIDDEN ON LOAD
     const recentReportsContainer = document.getElementById('recentReportsContainer');
     const deepDiveContainer = document.getElementById('reportsTableContainer');
     
     if (recentReportsContainer) recentReportsContainer.style.display = "none";
     if (deepDiveContainer) deepDiveContainer.style.display = "none";
 
-    // Only fetch the summary numbers for the 4 cards!
     try {
         const summaryResponse = await apiFetch('/api/dashboard-data/'); 
+        
+        if (summaryResponse.status === 403) {
+            await showSystemModal('error', 'Access Restricted', 'Your account permissions have been modified. You no longer have access to view reports. Please contact your system administrator.');
+            window.location.href = '/'; 
+            return;
+        }
+
         if (summaryResponse.ok) {
             const data = await summaryResponse.json();
-            
-            // Safe assignment checking
             if (data.summary) {
                 const hateEl = document.getElementById('stat-hate');
                 if (hateEl) hateEl.innerText = data.summary.total_hate.toLocaleString();
-
                 const safeEl = document.getElementById('stat-safe');
                 if (safeEl) safeEl.innerText = data.summary.total_safe.toLocaleString();
-
                 const reportsEl = document.getElementById('stat-reports');
                 if (reportsEl) reportsEl.innerText = data.summary.total_reports.toLocaleString();
-
                 const pctEl = document.getElementById('stat-pct');
                 if (pctEl) pctEl.innerText = data.summary.overall_pct + '%';
             }
@@ -56,13 +55,11 @@ function filterTable(filterType) {
     const recentReportsContainer = document.getElementById('recentReportsContainer');
     const deepDiveContainer = document.getElementById('reportsTableContainer');
     
-    // Grab dynamic headers
     const toxHeader = document.getElementById('col-toxicity');
-    const actionHeader = document.getElementById('col-action'); // Recent Reports
-    const actionHeaderDeep = document.getElementById('col-action-deep'); // 🎯 Deep Dive
+    const actionHeader = document.getElementById('col-action'); 
+    const actionHeaderDeep = document.getElementById('col-action-deep'); 
     const highlightsHeader = document.getElementById('col-highlights'); 
 
-    // Check if the user has permission to see the action columns
     const hasAdminPerms = typeof canDeleteReports !== 'undefined' ? canDeleteReports : false;
 
     if (tableControl) tableControl.style.display = "flex";
@@ -77,7 +74,6 @@ function filterTable(filterType) {
 
         if (recentReportsContainer) recentReportsContainer.style.display = "block"; 
         if (deepDiveContainer) deepDiveContainer.style.display = "none";
-        
         loadReportsTable(); 
 
     } else if (filterType === 'toxicity') {
@@ -90,7 +86,6 @@ function filterTable(filterType) {
         
         if (recentReportsContainer) recentReportsContainer.style.display = "block"; 
         if (deepDiveContainer) deepDiveContainer.style.display = "none";
-        
         loadReportsTable(); 
 
     } else {
@@ -105,12 +100,10 @@ function filterTable(filterType) {
             if (highlightsHeader) highlightsHeader.style.display = 'none'; 
         }
 
-        // 🎯 Toggle the deep dive action header based on permissions
         if (actionHeaderDeep) actionHeaderDeep.style.display = hasAdminPerms ? 'table-cell' : 'none';
 
         if (recentReportsContainer) recentReportsContainer.style.display = "none"; 
         if (deepDiveContainer) deepDiveContainer.style.display = "block";
-        
         loadTableData(); 
     }
     
@@ -126,9 +119,8 @@ async function loadReportsTable() {
     const tbody = document.getElementById('reportsTableBody'); 
     if (!tbody) return;
 
-    // 🎯 Check permissions to dynamically calculate the colSpan
     const hasDeletePerms = typeof canDeleteReports !== 'undefined' ? canDeleteReports : false;
-    let colSpanCount = 5; // Base columns
+    let colSpanCount = 5; 
     if (currentFilter === 'toxicity') colSpanCount = 6;
     else if (currentFilter === 'all' && hasDeletePerms) colSpanCount = 6;
     
@@ -136,6 +128,12 @@ async function loadReportsTable() {
     
     try {
         const response = await apiFetch(`/api/dashboard-data/?page=${currentReportsPage}`);
+        
+        if (response.status === 403) {
+            await showSystemModal('error', 'Access Restricted', 'Your account permissions have been modified. You no longer have access to view reports. Please contact your system administrator.');
+            window.location.href = '/';
+            return;
+        }
         if (!response.ok) throw new Error("Server error");
         
         const data = await response.json();
@@ -152,37 +150,30 @@ async function loadReportsTable() {
             if (pctEl) pctEl.innerText = data.summary.overall_pct + '%';
         }
 
-        tbody.innerHTML = ''; 
+        // 🎯 USE THE GLOBAL RENDERER
+        renderDynamicTable(tableData, 'reportsTableBody', colSpanCount, 'No reports generated yet.', (report) => {
+            let toxicityCellHTML = '';
+            let actionCellHTML = '';
 
-        if (tableData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align:center; padding:30px;">No reports generated yet.</td></tr>`;
-        } else {
-            tableData.forEach(report => {
-                
-                let toxicityCellHTML = '';
-                let actionCellHTML = '';
+            if (currentFilter === 'toxicity') {
+                const toxPct = Math.round((report.hate_count / (report.hate_count + report.safe_count || 1)) * 100);
+                toxicityCellHTML = `
+                    <td>
+                        <span style="font-size:.85rem;font-weight:600">${toxPct}%</span>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill conf-hate" style="width:${toxPct}%"></div>
+                        </div>
+                    </td>`;
+            } else if (currentFilter === 'all' && hasDeletePerms) {
+                const delBtn = `<button onclick="deleteReport(${report.id}, '${report.filename.replace(/'/g, "\\'")}')" class="btn btn-outline-danger" title="Delete Report">🗑</button>`;
+                actionCellHTML = `
+                    <td class="action-column-wrap">
+                        <div class="action-flex-container">${delBtn}</div>
+                    </td>`;
+            }
 
-                if (currentFilter === 'toxicity') {
-                    toxicityCellHTML = `
-                        <td>
-                            <span style="font-size:.85rem;font-weight:600">${Math.round((report.hate_count / (report.hate_count + report.safe_count || 1)) * 100)}%</span>
-                            <div class="confidence-bar">
-                                <div class="confidence-fill conf-hate" style="width:${Math.round((report.hate_count / (report.hate_count + report.safe_count || 1)) * 100)}%"></div>
-                            </div>
-                        </td>
-                    `;
-                } else if (currentFilter === 'all' && hasDeletePerms) {
-                    // 🎯 ONLY generate the <td> if the user has permissions
-                    const delBtn = `<button onclick="deleteReport(${report.id}, '${report.filename.replace(/'/g, "\\'")}')" class="btn btn-outline-danger" title="Delete Report">🗑</button>`;
-                    actionCellHTML = `
-                        <td class="action-column-wrap">
-                            <div class="action-flex-container">${delBtn}</div>
-                        </td>
-                    `;
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+            return `
+                <tr>
                     <td><strong>${report.filename}</strong></td>
                     <td class="row-num">${report.date}</td>
                     <td>${report.uploader}</td>
@@ -190,20 +181,11 @@ async function loadReportsTable() {
                     <td><span class="badge badge-safe">${report.safe_count}</span></td>
                     ${toxicityCellHTML}
                     ${actionCellHTML}
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+                </tr>`;
+        });
 
         if (typeof updatePaginationUI === 'function' && data.total_pages) {
-            updatePaginationUI(
-                data.current_page,      
-                data.total_pages,       
-                'reportsPageNumbers',         
-                'reportsPrevBtn',              
-                'reportsNextBtn',              
-                'goToReportsPage'            
-            );
+            updatePaginationUI(data.current_page, data.total_pages, 'reportsPageNumbers', 'reportsPrevBtn', 'reportsNextBtn', 'goToReportsPage');
         }
 
     } catch (error) {
@@ -219,51 +201,49 @@ async function loadTableData() {
     const tbody = document.getElementById('tableBody');
     if (!tbody) return;
     
-    // 🎯 Dynamically calculate colSpan based on active filters and permissions
     const hasAdminPerms = typeof canDeleteReports !== 'undefined' ? canDeleteReports : false;
-    let colSpanCount = 5; // Base columns
-    if (currentFilter !== 'safe') colSpanCount += 1; // Highlights
-    if (hasAdminPerms) colSpanCount += 1; // Action column
+    let colSpanCount = 5; 
+    if (currentFilter !== 'safe') colSpanCount += 1; 
+    if (hasAdminPerms) colSpanCount += 1; 
     
     tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align:center; padding:30px;">⏳ Loading data...</td></tr>`;
 
     try {
         const response = await apiFetch(`/api/dashboard-rows/?filter=${currentFilter}&page=${currentPage}`);
+        
+        if (response.status === 403) {
+            await showSystemModal('error', 'Access Restricted', 'Your account permissions have been modified. You no longer have access to view reports. Please contact your system administrator.');
+            window.location.href = '/';
+            return;
+        }
         if (!response.ok) throw new Error("Server error");
         
         const data = await response.json();
         const tableRows = data.rows || [];
         
-        tbody.innerHTML = ''; 
+        // 🎯 USE THE GLOBAL RENDERER
+        renderDynamicTable(tableRows, 'tableBody', colSpanCount, 'No rows found for this filter.', (row) => {
+            const isHate = row.status.includes("Hate");
+            const confPct = parseInt(row.confidence) || 0; 
+            
+            let chipsHtml = '<span style="color:var(--muted)">—</span>';
+            if (row.hate_words && row.hate_words !== "None") {
+                chipsHtml = row.hate_words.split(',').map(w => `<span class="highlight-chip">${w.trim()}</span>`).join('');
+            }
 
-        if (tableRows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align:center; padding:30px;">No rows found for this filter.</td></tr>`;
-        } else {
-            tableRows.forEach(row => {
-                const isHate = row.status.includes("Hate");
-                const confPct = parseInt(row.confidence) || 0; 
-                
-                let chipsHtml = '<span style="color:var(--muted)">—</span>';
-                if (row.hate_words && row.hate_words !== "None") {
-                    chipsHtml = row.hate_words.split(',').map(w => `<span class="highlight-chip">${w.trim()}</span>`).join('');
-                }
+            const highlightsCellHTML = currentFilter !== 'safe' ? `<td>${chipsHtml}</td>` : '';
 
-                const highlightsCellHTML = currentFilter !== 'safe' ? `<td>${chipsHtml}</td>` : '';
+            let actionCellHTML = '';
+            if (hasAdminPerms) {
+                const overrideBtn = `<button onclick="overrideRowStatus(${row.report_id}, ${row.row_num}, '${row.raw_label}')" class="btn btn-outline-gold" title="Override AI Classification">↻</button>`;
+                actionCellHTML = `
+                    <td class="action-column-wrap">
+                        <div class="action-flex-container">${overrideBtn}</div>
+                    </td>`;
+            }
 
-                // 🎯 Generate the Action Cell ONLY if the user has permissions
-                let actionCellHTML = '';
-                if (hasAdminPerms) {
-                    const overrideBtn = `<button onclick="overrideRowStatus(${row.report_id}, ${row.row_num}, '${row.raw_label}')" class="btn btn-outline-gold" title="Override AI Classification">↻</button>`;
-                    actionCellHTML = `
-                        <td class="action-column-wrap">
-                            <div class="action-flex-container">${overrideBtn}</div>
-                        </td>
-                    `;
-                }
-
-                const tr = document.createElement('tr');
-                tr.className = isHate ? 'hate-row' : 'safe-row'; 
-                tr.innerHTML = `
+            return `
+                <tr class="${isHate ? 'hate-row' : 'safe-row'}">
                     <td class="row-num">${row.filename}</td>
                     <td class="row-num"><strong>${row.row_num}</strong></td>
                     <td class="text-cell"><p>${row.text}</p></td>
@@ -276,20 +256,11 @@ async function loadTableData() {
                     </td>
                     ${highlightsCellHTML}
                     ${actionCellHTML}
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+                </tr>`;
+        });
 
         if (typeof updatePaginationUI === 'function' && data.total_pages) {
-            updatePaginationUI(
-                data.current_page,      
-                data.total_pages,       
-                'pageNumbers',          
-                'prevBtn',              
-                'nextBtn',              
-                'goToPage'              
-            );
+            updatePaginationUI(data.current_page, data.total_pages, 'pageNumbers', 'prevBtn', 'nextBtn', 'goToPage');
         }
 
     } catch (error) {
@@ -335,19 +306,15 @@ async function deleteReport(reportId, filename) {
         'warning', 
         'CRITICAL WARNING!', 
         `Are you sure you want to permanently delete the report "<strong>${filename}</strong>" and all its rows?<br><br>This action cannot be undone.`,
-        'Delete Report' // 🎯 Dynamic Button Text!
+        'Delete Report' 
     );
     
     if (!isConfirmed) return;
 
     try {
-        const token = typeof djangoCsrfToken !== 'undefined' ? djangoCsrfToken : getCookie('csrftoken');
-        const response = await fetch(`/api/report/delete/${reportId}/`, {
+        const response = await apiFetch(`/api/report/delete/${reportId}/`, {
             method: 'POST',
-            headers: { 
-                'X-CSRFToken': token, 
-                'Content-Type': 'application/json' 
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
         const result = await response.json();
 
@@ -363,51 +330,32 @@ async function deleteReport(reportId, filename) {
     }
 }
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 /* ==========================================================================
    8. ADMINISTRATIVE OVERRIDE
    ========================================================================== */
 
 async function overrideRowStatus(reportId, rowNum, currentLabel) {
     const targetStatus = currentLabel === 'HATE' ? 'NOT HATE' : 'HATE';
+    const currentColor = currentLabel === 'HATE' ? 'var(--hate)' : 'var(--safe)';
+    const targetColor = targetStatus === 'HATE' ? 'var(--hate)' : 'var(--safe)';
     
     const isConfirmed = await showSystemModal(
         'override', 
         'Override AI Classification?', 
-        `You are about to manually override Row #${rowNum} from <strong style="color:var(--hate)">${currentLabel}</strong> to <strong style="color:var(--safe)">${targetStatus}</strong>.`,
+        `You are about to manually override Row #${rowNum} from <strong style="color:${currentColor}">${currentLabel}</strong> to <strong style="color:${targetColor}">${targetStatus}</strong>.`,
         `Override to ${targetStatus}` 
     );
     
     if (!isConfirmed) return;
 
     try {
-        const token = typeof djangoCsrfToken !== 'undefined' ? djangoCsrfToken : getCookie('csrftoken');
-        
-        const response = await fetch(`/api/row/override/${reportId}/${rowNum}/`, { 
+        const response = await apiFetch(`/api/row/override/${reportId}/${rowNum}/`, { 
             method: 'POST',
-            headers: { 
-                'X-CSRFToken': token, 
-                'Content-Type': 'application/json' 
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
         const result = await response.json();
 
         if (response.ok && result.success) {
-            // 🎯 Refresh the Global Dashboard Summary Cards
             const summaryResponse = await apiFetch('/api/dashboard-data/'); 
             if (summaryResponse.ok) {
                 const data = await summaryResponse.json();
@@ -420,8 +368,6 @@ async function overrideRowStatus(reportId, rowNum, currentLabel) {
                     if (pctEl) pctEl.innerText = data.summary.overall_pct + '%';
                 }
             }
-            
-            // Re-render the table with the new data
             loadTableData(); 
         } else {
             await showSystemModal('error', 'Override Failed', result.error || 'Permission denied.');

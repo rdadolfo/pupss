@@ -286,7 +286,7 @@ function renderTable() {
                 </div>
             </td>
             <td>${chips}</td>
-            ${actionCellHTML} <!-- 🎯 Insert the dynamic cell here -->
+            ${actionCellHTML}
         `;
         tbody.appendChild(tr);
     });
@@ -396,12 +396,14 @@ function updateDropdownOptions() {
 /** 🎯 Handles overriding directly from the active detector window */
 async function overrideHateDetectorRow(reportId, rowNum, currentLabel) {
     const targetStatus = currentLabel === 'HATE' ? 'NOT HATE' : 'HATE';
+    const currentColor = currentLabel === 'HATE' ? 'var(--hate)' : 'var(--safe)';
+    const targetColor = targetStatus === 'HATE' ? 'var(--hate)' : 'var(--safe)';
     
     const isConfirmed = await showSystemModal(
-        'override', // 🎯 Changed type to 'override' for the maroon color
+        'override',
         'Override AI Classification?', 
-        `You are about to manually override Row #${rowNum} from <strong style="color:var(--hate)">${currentLabel}</strong> to <strong style="color:var(--safe)">${targetStatus}</strong>.`,
-        `Override to ${targetStatus}` // 🎯 Dynamic Button Text! (e.g., "Override to NOT HATE")
+        `You are about to manually override Row #${rowNum} from <strong style="color:${currentColor}">${currentLabel}</strong> to <strong style="color:${targetColor}">${targetStatus}</strong>.`,
+        `Override to ${targetStatus}` 
     );
     
     if (!isConfirmed) return;

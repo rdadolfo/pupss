@@ -42,22 +42,3 @@
   padding: 10px;
   margin: 10px auto;
 }
-
-/* Theme-Aware Inputs */
-#id_username, #id_password {
-  padding: 10px;
-  width: 80%;
-  box-sizing: border-box;
-  background-color: var(--body-bg);
-  color: var(--body-fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: var(--font-family-primary);
-}
-
-/* Input Focus Glow */
-#id_username:focus, #id_password:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(230, 0, 0, 0.2);
-}

@@ -2,13 +2,6 @@
    PUPSS DASHBOARD STYLES
    ========================================================================== */
 
-/* ── 1. Typography & Global ──────────────────────────────────────────────── */
-.wrapper { 
-    max-width: 1100px; 
-    margin: 20px auto;
-    padding: 1rem 0.5rem; 
-}
-
 /* ── 2. Summary Cards ────────────────────────────────────────────────────── */
 .cards {
     display: flex;
@@ -86,30 +79,6 @@
 .table-controls h3 {
     color: var(--body-fg) !important; 
     margin: 0;
-}
-
-/* ==========================================================================
-   6. SYNCHRONIZED ACTION BUTTONS (Imported from Admin)
-   ========================================================================== */
-
-/* Gold Outline Button (Used for Override/Edit) */
-.btn-outline-gold { 
-    color: #b08d00; 
-    border: 1px solid #ffd700; 
-    background: transparent; 
-}
-.btn-outline-gold:hover { 
-    color: #212529; 
-    background: #fff5e9; 
-}
-
-/* Dark Mode fixes for the gold button */
-[data-theme="dark"] .btn-outline-gold { 
-    color: #ffd700; 
-}
-[data-theme="dark"] .btn-outline-gold:hover { 
-    color: #121212; 
-    background: #ffd700; 
 }
 
 /* Replaces Bootstrap's flexbox utility classes for the action column */

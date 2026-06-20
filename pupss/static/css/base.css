@@ -57,7 +57,7 @@
     color-scheme: light;
 }
 
-/* Dark Mode Overrides */
+/* --- Dark Mode Overrides --- */
 [data-theme="dark"] {
     --body-fg: #f0f2f5;
     --body-bg: #121212;
@@ -103,7 +103,10 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }
 
-html, body { margin: 0; padding: 0; }
+html, body { 
+    margin: 0; 
+    padding: 0; 
+}
 
 body {
     display: flex;
@@ -114,7 +117,10 @@ body {
     background: var(--body-bg);
 }
 
-a { text-decoration: none; color: var(--primary-fg); }
+a { 
+    text-decoration: none; 
+    color: var(--primary-fg); 
+}
 
 /* ==========================================================================
    3. LAYOUT CONTAINERS
@@ -122,7 +128,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 .wrapper { 
     width: 100%;
     max-width: 1100px; 
-    margin: 0 auto; 
+    margin: 20px auto; 
     padding: 2rem 1.5rem; 
     flex: 1; 
 }
@@ -137,11 +143,42 @@ a { text-decoration: none; color: var(--primary-fg); }
     padding: 15px 20px;
 }
 
-.header { background-color: var(--body-bg); color: var(--primary); }
-.footer { text-align: center; color: var(--footer); }
+.header { 
+    background-color: var(--body-bg); 
+    color: var(--primary); 
+}
+
+.footer { 
+    text-align: center; 
+    color: var(--footer); 
+}
 
 /* ==========================================================================
-   4. TYPOGRAPHY & BRANDING
+   4. FORMS & INPUTS
+   ========================================================================== */
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+textarea, 
+select {
+    background-color: var(--input-bg, var(--body-bg));
+    color: var(--text-dark, var(--body-fg));
+    border: 1px solid var(--input-border, var(--border));
+    border-radius: 6px;
+    padding: 10px 14px;
+    width: 90%;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(230, 0, 0, 0.2));
+}
+
+/* ==========================================================================
+   5. TYPOGRAPHY & BRANDING
    ========================================================================== */
 .main-title {
     text-align: center;
@@ -159,8 +196,12 @@ a { text-decoration: none; color: var(--primary-fg); }
     margin: 0 0 10px 0;
 }
 
-/* Theme Image Toggles */
-.pup-logo-img { height: 110px; margin-right: 10px; transition: opacity 0.2s ease-in-out; }
+/* --- Theme Image Toggles --- */
+.pup-logo-img { 
+    height: 110px; 
+    margin-right: 10px; 
+    transition: opacity 0.2s ease-in-out; 
+}
 .logo-theme-dark { display: none !important; }
 .logo-theme-light { display: inline-block !important; }
 .theme-invert { transition: filter 0.2s ease-in-out; }
@@ -176,9 +217,9 @@ a { text-decoration: none; color: var(--primary-fg); }
 }
 
 /* ==========================================================================
-   5. GENERAL BUTTONS
+   6. GENERAL BUTTONS
    ========================================================================== */
-/* Base Button Structure */
+/* --- Base Button Structure --- */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -191,7 +232,7 @@ a { text-decoration: none; color: var(--primary-fg); }
     transition: all 0.15s ease-in-out;
 }
 
-/* Primary Action Buttons */
+/* --- Primary Action Buttons --- */
 .login-btn, .logout-btn, .submit-row input, .btn-submit {
     background: var(--accent);
     color: #ffffff;
@@ -208,7 +249,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 .login-btn:hover, .logout-btn:hover, .submit-row input:hover { opacity: 0.85; }
 .btn-submit:hover { background: var(--maroon-hover); }
 
-/* Cancel & Secondary Buttons */
+/* --- Cancel & Secondary Buttons --- */
 .btn-cancel {
     background: var(--bg-light);          
     color: var(--text-dark);              
@@ -224,7 +265,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 }
 .btn-cancel:hover { background: var(--border-light); }
 
-/* Outline Buttons (Variations) */
+/* --- Outline Buttons (Variations) --- */
 .btn-outline {
     background: transparent; 
     color: var(--accent);
@@ -248,7 +289,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 .btn-outline-gold { color: #b08d00; border: 1px solid #ffd700; background: transparent; }
 .btn-outline-gold:hover { color: #212529; background: #fff5e9; }
 
-/* Tool Specific Buttons */
+/* --- Tool Specific Buttons --- */
 .hatedetector-btn {
     font-weight: bold;
     cursor: pointer;
@@ -264,12 +305,12 @@ a { text-decoration: none; color: var(--primary-fg); }
 .hatedetector-btn:hover a { color: var(--primary-fg); }
 
 /* ==========================================================================
-   6. PAGINATION & FILTER CONTROLS
+   7. PAGINATION & FILTER CONTROLS
    ========================================================================== */
 .pagination-wrapper { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
 .page-numbers-bucket { display: flex; gap: 6px; }
 
-/* Page Buttons & Toggles */
+/* --- Page Buttons & Toggles --- */
 .page-btn, .page-numbers-bucket button, .btn-theme-toggle { 
     background: var(--body-bg) !important; 
     border: 1px solid var(--border) !important; 
@@ -285,7 +326,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 .page-numbers-bucket button { padding: 6px 12px; } 
 .btn-theme-toggle { padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px; }
 
-/* Hover & Active States */
+/* --- Hover & Active States --- */
 .page-btn:hover:not(:disabled), .page-numbers-bucket button:hover:not(.active), .btn-theme-toggle:hover {
     background: var(--card-primary) !important;
 }
@@ -304,7 +345,7 @@ a { text-decoration: none; color: var(--primary-fg); }
     cursor: not-allowed;
 }
 
-/* Filter Controls */
+/* --- Filter Controls --- */
 .table-controls { display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; flex-wrap: wrap; }
 .filter-btn {
     padding: 0.35rem 0.9rem; 
@@ -317,7 +358,7 @@ a { text-decoration: none; color: var(--primary-fg); }
 }
 
 /* ==========================================================================
-   7. TABLES & ALIGNMENT
+   8. TABLES & ALIGNMENT
    ========================================================================== */
 #resultsSection { display: none; }
 .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
@@ -346,7 +387,7 @@ tr:hover td { background: var(--table-hover); }
 .text-cell { max-width: 320px; line-height: 1.5; }
 .row-num { opacity: 0.7; font-size: 0.8rem; }
 
-/* Action Column Alignment */
+/* --- Action Column Alignment --- */
 .action-column-wrap {
     white-space: nowrap !important;
     width: 1% !important;
@@ -359,7 +400,7 @@ tr:hover td { background: var(--table-hover); }
 }
 
 /* ==========================================================================
-   8. DATA VISUALIZATION (Badges & Charts)
+   9. DATA VISUALIZATION (Badges & Charts)
    ========================================================================== */
 .badge {
     display: inline-block; 
@@ -399,7 +440,7 @@ tr:hover td { background: var(--table-hover); }
 .conf-safe { background: var(--safe); }
 
 /* ==========================================================================
-   9. SYSTEM MODAL
+   10. SYSTEM MODAL
    ========================================================================== */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -424,7 +465,7 @@ tr:hover td { background: var(--table-hover); }
 .modal-message { margin: 0; color: var(--footer); font-size: 0.95rem; line-height: 1.5; }
 .modal-actions { display: flex; justify-content: center; gap: 12px; }
 
-/* Modal specific buttons */
+/* --- Modal specific buttons --- */
 #customModalCancel {
     background: var(--bg); color: var(--body-fg); border: 1px solid var(--border);
     padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px;
@@ -440,7 +481,7 @@ tr:hover td { background: var(--table-hover); }
 #customModalConfirm:hover { background: var(--accent); }
 
 /* ==========================================================================
-   10. MOBILE RESPONSIVENESS
+   11. MOBILE RESPONSIVENESS
    ========================================================================== */
 @media (max-width: 640px) {
     .header { flex-direction: column; gap: 15px; text-align: center; }

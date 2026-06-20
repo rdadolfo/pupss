@@ -79,15 +79,12 @@
     </div>
 
     <div id="resultsSection">
-        
-        <div class="table-controls">
+        <div class="pagination-wrapper">
             <button class="filter-btn active" data-filter="all" onclick="filterTable(this)">All</button>
             <button class="filter-btn hate-filter" data-filter="HATE" onclick="filterTable(this)">🚨 Hate Only</button>
             <button class="filter-btn" data-filter="NOT HATE" onclick="filterTable(this)">✅ Safe Only</button>
-            <div style="flex:1"></div>
             <button class="btn btn-outline" onclick="downloadResults()">⬇ Download CSV</button>
-        </div>
-        <div class="pagination-wrapper">
+            <div style="flex:1"></div>
             <button id="prevBtn" onclick="changePage(-1)" class="page-btn">◀ Previous</button>
             <div id="pageNumbers" class="page-numbers-bucket"></div>
             <button id="nextBtn" onclick="changePage(1)" class="page-btn">Next ▶</button>
