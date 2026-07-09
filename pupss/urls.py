@@ -6,7 +6,7 @@ from django.contrib.auth import views as auth_views
 from pupss.forms import PUPSSCustomAuth
 from pupss.views import (
     admin_settings, api_delete_report, api_override_row, create_user, admin_user_api, edit_user, admin_group_api, create_group, edit_group, landing, custom_logout,  
-    dashboard, dashboard_data_view, dashboard_rows_api, dashboard_download_view, hatedetector, process_view, preview_columns_view, 
+    dashboard, dashboard_data_view, dashboard_rows_api, dashboard_download_view, hatedetector, process_view, preview_columns_view, get_all_faculty,
     report_generation, generate_insights_api, hatedetector_download_view, delete_user_api, delete_group_api, admin_change_password
 )
 
@@ -33,6 +33,7 @@ urlpatterns = [
 
     # ── Generate Insights API Endpoints (Used by report.js) ────────────────────────
     path('api/generate-insights/', generate_insights_api, name='api-generate-insights'),
+    path('api/get-faculty/', get_all_faculty, name='api-get-faculty'),
     path('api/report/delete/<int:report_id>/', api_delete_report, name='api_delete_report'),
     path('api/row/override/<int:report_id>/<int:row_num>/', api_override_row, name='api_override_row'),
 

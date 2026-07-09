@@ -461,3 +461,84 @@ async function overrideHateDetectorRow(reportId, rowNum, currentLabel) {
         await showSystemModal('error', 'Network Failure', 'A critical network error occurred during the override.');
     }
 }
+
+// Assuming 'allParsedRows' is the array of data from your CSV upload
+function groupFeedbackByInstructor(allParsedRows) {
+    return allParsedRows.reduce((grouped, row) => {
+        // Fallback to "Unknown Instructor" if the target column is blank
+        const instructor = row.Target ? row.Target.trim() : "Unknown Instructor";
+        
+        // If this instructor doesn't exist in our object yet, create an empty array for them
+        if (!grouped[instructor]) {
+            grouped[instructor] = [];
+        }
+        
+        // Push the current row into this instructor's array
+        grouped[instructor].push(row);
+        
+        return grouped;
+    }, {}); // {} initializes an empty object
+}
+
+function renderInstructorReports(groupedData) {
+    const container = document.getElementById('reportsContainer'); 
+    container.innerHTML = ''; // Clear previous reports
+
+    // Loop through each instructor in the grouped data
+    for (const [instructorName, feedbackRows] of Object.entries(groupedData)) {
+        
+        // Create a wrapper for this specific instructor
+        const section = document.createElement('div');
+        section.className = 'instructor-section card';
+        section.style.marginBottom = '2rem';
+        
+        // 1. Build the Header
+        let htmlContent = `
+            <div class="report-header" style="border-bottom: 2px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h2 style="color: var(--accent); margin: 0;">Target: ${instructorName}</h2>
+                <p style="color: var(--muted); margin-top: 0.5rem;">Total Feedback Entries: <strong>${feedbackRows.length}</strong></p>
+            </div>
+            <div class="table-wrap">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 2px solid var(--border-light);">
+                            <th style="padding: 0.5rem;">Feedback Text</th>
+                            <th style="padding: 0.5rem; width: 120px;">Label</th>
+                            <th style="padding: 0.5rem; width: 100px;">Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        // 2. Loop through their specific feedback rows
+        feedbackRows.forEach(row => {
+            // Determine the color class based on your existing UI logic
+            const labelClass = row.Label === 'HATE' ? 'hate-col' : 'safe-col';
+            const displayLabel = row.Label === 'HATE' ? '🚨 HATE' : '✅ SAFE';
+
+            htmlContent += `
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                    <td style="padding: 0.75rem;">${row.Text}</td>
+                    <td style="padding: 0.75rem;" class="${labelClass}"><strong>${displayLabel}</strong></td>
+                    <td style="padding: 0.75rem;">${row.Confidence}%</td>
+                </tr>
+            `;
+        });
+
+        // 3. Close the table and append to the section
+        htmlContent += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        section.innerHTML = htmlContent;
+        container.appendChild(section);
+    }
+}
+
+// 1. Get the grouped data
+const groupedByFaculty = groupFeedbackByInstructor(processedResults);
+
+// 2. Render it to the screen
+renderInstructorReports(groupedByFaculty);

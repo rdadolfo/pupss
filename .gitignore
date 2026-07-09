@@ -1,4 +1,17 @@
+# --- SECURITY (Do not upload secrets!) ---
+.env
+# --- DATABASE (Keep local test data local) ---
+db.sqlite3
+db.sqlite3-journal
+
+# --- YOUR CUSTOM FOLDERS ---
 /backup/
+
+# --- PYTHON CACHE (Keeps your repo clean) ---
+*.pyc
+__pycache__/
+*/__pycache__/
+
 pupspeechsafe/__pycache__
 pupss/__pycache__/
 pupss/hatedetector/

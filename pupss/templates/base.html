@@ -13,6 +13,8 @@
     <link id="favicon" rel="icon" type="image/png" href="{% static 'img/pup-light.png' %}">
 
     <script>
+        const FAVICON_DARK_URL = "{% static 'img/pup-dark.png' %}";
+        const FAVICON_LIGHT_URL = "{% static 'img/pup-light.png' %}";
         (function() {
             const savedTheme = localStorage.getItem('pupss-theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -55,8 +57,15 @@
             <button id="menuTriggerBtn" class="simple-dropbtn">
              Menu
             </button>
-          
+
             <div id="simpleDropdown" class="simple-dropdown-content">
+              <div class="user-profile-badge">
+                  <span class="profile-icon">👤</span>
+                  <span class="profile-name">
+                      {{ user.get_full_name|default:user.username }}
+                  </span>
+              </div>
+                <hr class="dropdown-divider">
                 {% if perms.pupss.audit_read %}
                   <a href="{% url 'dashboard' %}">Dashboard</a>
                 {% endif %}
@@ -93,7 +102,8 @@
           PUPSS values privacy. All data is securely stored, used only for this service, and never shared. 
           It strictly secures every data from unauthorized access.
         </p>
-        <span style="font-weight: bold;">©2026 PUP SpeechSafe</span>
+        <span style="font-weight: bold;">©2026 PUP SpeechSafe. All rights reserved.</span><br>
+        <a href="https://www.pup.edu.ph/privacy/">Privacy Policy</a> <span>|</span> <a href="https://www.pup.edu.ph/terms/">Terms and Conditions</a>
       </div>
     </footer>
 

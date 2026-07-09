@@ -9,21 +9,21 @@
     --accent: #e60000;
     --maroon-base: #800000;
     --maroon-hover: #600000;
-    
+
     /* Light Mode Basics */
     --primary-fg: #fff;
     --body-fg: #333333;
-    --body-bg: #ffffff;  
+    --body-bg: #ffffff;
     --bg: #f4f6f9;
     --bg-light: #f8f9fa;
     --text-dark: #333333;
     --text-muted: #6c757d;
-    
+
     /* Surfaces */
     --main-title: var(--tertiary);
-    --card-primary: #f5eae9; 
+    --card-primary: #f5eae9;
     --card-secondary: #ebf5e9;
-    --card-tertiary: #fff5e9; 
+    --card-tertiary: #fff5e9;
     --card-quarter: #e9e9f5;
     --footer: #555555;
     --muted: #000000;
@@ -42,19 +42,19 @@
     --header-admin-text: #800000;
     --header-reviewer-bg: rgba(0, 86, 179, 0.08);
     --header-reviewer-text: #0056b3;
-    
+
     /* Data Visualization */
     --hate: var(--secondary);
     --hate-bg: rgba(255, 77, 109, 0.12);
     --safe: #2ee89a;
     --safe-bg: rgba(46, 232, 154, 0.10);
     --text: var(--muted);
-    --highlight: #ffd166;    
+    --highlight: #ffd166;
     --table-hover: rgba(0, 0, 0, 0.025);
-    
+
     /* Typography */
     --font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
-    color-scheme: light;
+     color-scheme: light;
 }
 
 /* --- Dark Mode Overrides --- */
@@ -67,14 +67,14 @@
     --text-muted: #adb5bd;
 
     --main-title: #ff4d4d;
-    --card-primary: #2d1a18; 
+    --card-primary: #2d1a18;
     --card-secondary: #182d19;
-    --card-tertiary: #2d2418; 
+    --card-tertiary: #2d2418;
     --card-quarter: #1a1a2d;
     --footer: #aaaaaa;
     --muted: #ffffff;
     --surface: #222222;
-    
+
     --border: #3a3a3a;
     --border-light: #3d3d3d;
     --table-hover: rgba(255, 255, 255, 0.035);
@@ -98,39 +98,39 @@
    2. GLOBAL RESETS
    ========================================================================== */
 *, *::before, *::after {
-    box-sizing: border-box; 
+    box-sizing: border-box;
     font-family: var(--font-family-primary);
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }
 
-html, body { 
-    margin: 0; 
-    padding: 0; 
+html, body {
+    margin: 0;
+    padding: 0;
 }
 
 body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
+    min-height: 100vh;
     font-size: 0.875rem;
     color: var(--body-fg);
     background: var(--body-bg);
 }
 
-a { 
-    text-decoration: none; 
-    color: var(--primary-fg); 
+a {
+    text-decoration: none;
+    color: var(--primary-fg);
 }
 
 /* ==========================================================================
    3. LAYOUT CONTAINERS
    ========================================================================== */
-.wrapper { 
+.wrapper {
     width: 100%;
-    max-width: 1100px; 
-    margin: 20px auto; 
-    padding: 2rem 1.5rem; 
-    flex: 1; 
+    max-width: 1100px;
+    margin: 15px auto;
+    padding: 1.5rem .5rem;
+    flex: 1;
 }
 
 .header, .footer {
@@ -138,28 +138,38 @@ a {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1100px; 
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 15px 20px;
+    padding: 10px 15px;
 }
 
-.header { 
-    background-color: var(--body-bg); 
-    color: var(--primary); 
+.header {
+    background-color: var(--body-bg);
+    color: var(--primary);
 }
 
-.footer { 
-    text-align: center; 
-    color: var(--footer); 
+.footer {
+    flex-shrink: 0;
+    text-align: center;
+    justify-content: center;
+    color: var(--footer);
+}
+
+.footer a {
+    color: var(--primary);
+}
+
+.footer a:hover {
+    color: var(--accent);
 }
 
 /* ==========================================================================
    4. FORMS & INPUTS
    ========================================================================== */
-input[type="text"], 
-input[type="password"], 
-input[type="email"], 
-textarea, 
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea,
 select {
     background-color: var(--input-bg, var(--body-bg));
     color: var(--text-dark, var(--body-fg));
@@ -183,9 +193,9 @@ input:focus, textarea:focus, select:focus {
 .main-title {
     text-align: center;
     color: var(--main-title);
-    margin: 10px auto;
+    margin: 7px auto;
     font-size: 28px;
-    padding: 1rem 2rem;
+    padding: .5rem 1.25rem;
 }
 
 .logo-title {
@@ -197,17 +207,17 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* --- Theme Image Toggles --- */
-.pup-logo-img { 
-    height: 110px; 
-    margin-right: 10px; 
-    transition: opacity 0.2s ease-in-out; 
+.pup-logo-img {
+    height: 110px;
+    margin-right: 10px;
+    transition: opacity 0.2s ease-in-out;
 }
 .logo-theme-dark { display: none !important; }
 .logo-theme-light { display: inline-block !important; }
 .theme-invert { transition: filter 0.2s ease-in-out; }
 
 [data-theme="dark"] .logo-theme-light { display: none !important; }
-[data-theme="dark"] .logo-theme-dark { 
+[data-theme="dark"] .logo-theme-dark {
     display: inline-block !important;
     filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.35));
 }
@@ -251,8 +261,8 @@ input:focus, textarea:focus, select:focus {
 
 /* --- Cancel & Secondary Buttons --- */
 .btn-cancel {
-    background: var(--bg-light);          
-    color: var(--text-dark);              
+    background: var(--bg-light);
+    color: var(--text-dark);
     border: 1px solid var(--border-light);
     padding: 9px 14px;
     font-size: 13px;
@@ -267,13 +277,13 @@ input:focus, textarea:focus, select:focus {
 
 /* --- Outline Buttons (Variations) --- */
 .btn-outline {
-    background: transparent; 
+    background: transparent;
     color: var(--accent);
     border: 1px solid var(--accent);
-    padding: 0.6rem 1.5rem; 
-    border-radius: 8px; 
-    font-size: 0.9rem; 
-    font-weight: 600; 
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 .btn-outline:hover { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
 
@@ -297,7 +307,7 @@ input:focus, textarea:focus, select:focus {
     padding: 10px 15px;
     background-color: var(--card-primary);
     border: none;
-    border-bottom: 2px solid var(--border); 
+    border-bottom: 2px solid var(--border);
     border-radius: 10px;
 }
 .hatedetector-btn a { color: var(--body-fg); }
@@ -311,19 +321,19 @@ input:focus, textarea:focus, select:focus {
 .page-numbers-bucket { display: flex; gap: 6px; }
 
 /* --- Page Buttons & Toggles --- */
-.page-btn, .page-numbers-bucket button, .btn-theme-toggle { 
-    background: var(--body-bg) !important; 
-    border: 1px solid var(--border) !important; 
+.page-btn, .page-numbers-bucket button, .btn-theme-toggle {
+    background: var(--body-bg) !important;
+    border: 1px solid var(--border) !important;
     color: var(--body-fg) !important;
-    border-radius: 4px; 
-    cursor: pointer; 
+    border-radius: 4px;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     font-weight: 500;
     transition: background 0.2s ease;
 }
 .page-btn { padding: 8px 16px; }
-.page-numbers-bucket button { padding: 6px 12px; } 
+.page-numbers-bucket button { padding: 6px 12px; }
 .btn-theme-toggle { padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px; }
 
 /* --- Hover & Active States --- */
@@ -332,14 +342,14 @@ input:focus, textarea:focus, select:focus {
 }
 .page-numbers-bucket button.active, .filter-btn.active {
     background: var(--highlight) !important;
-    color: #121212 !important;             
+    color: #121212 !important;
     border-color: var(--highlight) !important;
     font-weight: bold;
     box-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
 }
 .page-btn:disabled, .page-btn[disabled] {
     background: var(--body-bg) !important;
-    color: var(--footer) !important; 
+    color: var(--footer) !important;
     border-color: var(--border) !important;
     opacity: 0.5;
     cursor: not-allowed;
@@ -348,12 +358,12 @@ input:focus, textarea:focus, select:focus {
 /* --- Filter Controls --- */
 .table-controls { display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; flex-wrap: wrap; }
 .filter-btn {
-    padding: 0.35rem 0.9rem; 
+    padding: 0.35rem 0.9rem;
     border-radius: 20px;
-    border: 1px solid var(--border); 
+    border: 1px solid var(--border);
     background: var(--surface2);
-    color: var(--primary-fg); 
-    font-size: 0.8rem; 
+    color: var(--primary-fg);
+    font-size: 0.8rem;
     cursor: pointer;
 }
 
@@ -365,14 +375,14 @@ input:focus, textarea:focus, select:focus {
 table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 
 th {
-    background: var(--primary); 
+    background: var(--primary);
     padding: 0.75rem 1rem;
-    text-align: left; 
-    font-size: 0.75rem; 
+    text-align: left;
+    font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase; 
+    text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #ffffff; 
+    color: #ffffff;
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
 }
@@ -396,43 +406,70 @@ tr:hover td { background: var(--table-hover); }
 .action-column-wrap .btn {
     height: 28px !important;
     min-width: 32px;
-    padding: 0 8px;     
+    padding: 0 8px;
 }
 
 /* ==========================================================================
    9. DATA VISUALIZATION (Badges & Charts)
    ========================================================================== */
+ .user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-right: 5px;
+    font-weight: 600;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: default;
+    transition: all 0.2s ease;
+}
+.profile-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.profile-name {
+    text-transform: capitalize;
+}
+[data-theme="dark"] .profile-icon {
+    filter: invert(1) brightness(200%);
+}
+.profile-icon {
+    display: inline-block;
+    vertical-align: middle;
+}
 .badge {
-    display: inline-block; 
+    display: inline-block;
     padding: 0.5rem 1.5rem;
-    border-radius: 20px; 
-    font-size: 0.75rem; 
+    border-radius: 20px;
+    font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase; 
-    letter-spacing: 0.04em; 
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     white-space: nowrap;
 }
 .badge-hate { background: var(--hate-bg); color: var(--hate); border: 1px solid var(--hate); }
 .badge-safe { background: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
 
 .highlight-chip {
-    display: inline-block; 
+    display: inline-block;
     margin: 2px;
-    background: rgba(255, 209, 102, 0.18); 
+    background: rgba(255, 209, 102, 0.18);
     color: var(--highlight);
     border: 1px solid rgba(255, 209, 102, 0.35);
-    border-radius: 4px; 
+    border-radius: 4px;
     padding: 0.1rem 0.4rem;
-    font-size: 0.75rem; 
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 .confidence-bar {
-    width: 80px; 
-    height: 6px; 
+    width: 80px;
+    height: 6px;
     background: var(--border);
-    border-radius: 3px; 
-    margin-top: 4px; 
+    border-radius: 3px;
+    margin-top: 4px;
     overflow: hidden;
 }
 .confidence-fill { height: 100%; border-radius: 3px; }
@@ -445,7 +482,7 @@ tr:hover td { background: var(--table-hover); }
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px); 
+    backdrop-filter: blur(3px);
     display: flex; justify-content: center; align-items: center;
     z-index: 9999; opacity: 0; pointer-events: none;
     transition: opacity 0.2s ease;

@@ -15,7 +15,7 @@ from django.contrib.auth.forms import SetPasswordForm
 
 # Custom App Imports
 from pupss.processor import process_csv, results_to_csv, detect_text_column
-from pupss.tools import generate_file_hash
+from pupss.tools import generate_file_hash, generate_instructor_summary
 from pupss.models import HateSpeechReport
 from pupss.pdf_service import generate_rml_insight_report
 from pupss.forms import PUPSSCustomUserCreationForm, CustomUserUpdateForm, PUPSSCustomGroupCreationForm, CustomGroupUpdateForm
@@ -353,58 +353,182 @@ def dashboard_download_view(request):
 @login_required
 @permission_required('pupss.report_export', raise_exception=True)
 def generate_insights_api(request):
-    file_id = request.GET.get('file', 'all')
-    entity_type = request.GET.get('entity', 'student') 
+    file_ids_param = request.GET.get('file', 'all')
+    mode = request.GET.get('mode', 'summary') 
     action = request.GET.get('action', 'json') 
 
-    try:
-        top_n = int(request.GET.get('top', 10))
-    except ValueError:
-        top_n = 10
-
-    reports = HateSpeechReport.objects.all() if file_id == 'all' else HateSpeechReport.objects.filter(id=file_id)
-    entity_stats = {}
-
-    for report in reports.iterator():
-        for row in report.results_data.get('rows', []):
-            category = 'hate' if str(row.get("label", "SAFE")).upper() == "HATE" else 'safe'
-            column_key = "author" if entity_type == 'student' else "target"
-            entity_name = str(row.get(column_key, "Unknown")).strip()
+    # 1. Fetch Reports
+    if file_ids_param == 'all':
+        reports = HateSpeechReport.objects.all()
+    else:
+        try:
+            id_list = [int(i) for i in file_ids_param.split(',')]
+            reports = HateSpeechReport.objects.filter(id__in=id_list)
+        except ValueError:
+            return JsonResponse({"error": "Invalid report IDs provided."}, status=400)
             
-            if not entity_name or entity_name == "None":
-                entity_name = "Unknown"
-
-            if entity_name not in entity_stats:
-                entity_stats[entity_name] = {'total': 0, 'hate': 0, 'safe': 0}
-
-            entity_stats[entity_name]['total'] += 1
-            entity_stats[entity_name][category] += 1 
-
-    sorted_entities = sorted(
-        [{'name': k, **v} for k, v in entity_stats.items()],
-        key=lambda x: x['hate'],
-        reverse=True
-    )
-    top_entities = sorted_entities[:top_n]
-
-    for item in top_entities:
-        item['toxicity_pct'] = round((item['hate'] / item['total']) * 100, 2) if item['total'] > 0 else 0
-
-    if action == 'download':
-        pdf_bytes = generate_rml_insight_report(top_entities, entity_type)
-        response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="PUPSS_Insight_{entity_type.capitalize()}.pdf"'
-        return response
+    # =========================================================================
+    # BRANCH 1: DETAILED FACULTY LOG
+    # =========================================================================
+    if mode == 'detailed':
+        target_faculty_param = request.GET.get('faculty', 'all')
         
-    return JsonResponse({
-        "graph_data": {
-            "labels": [item['name'] for item in top_entities],
-            "hate_counts": [item['hate'] for item in top_entities],
-            "total_hate": sum(item['hate'] for item in top_entities), 
-            "total_safe": sum(item['safe'] for item in top_entities)
-        },
-        "table_data": top_entities 
-    })
+        if target_faculty_param != 'all':
+            target_faculty_list = [f.strip() for f in target_faculty_param.split(',')]
+        else:
+            target_faculty_list = []
+
+        detailed_data = []
+        
+        # Nested dictionary to track students per instructor
+        instructor_breakdown = {}
+        
+        for report in reports.iterator():
+            raw_data = report.results_data
+            if isinstance(raw_data, list):
+                rows = raw_data
+            elif isinstance(raw_data, dict):
+                rows = raw_data.get('rows', [])
+            else:
+                rows = []
+
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+
+                entity_name = str(row.get('target', "Unknown")).strip()
+                if not entity_name or entity_name == "None":
+                    entity_name = "Unknown"
+                    
+                if target_faculty_param == 'all' or entity_name in target_faculty_list:
+                    label = str(row.get('label', 'SAFE')).upper()
+                    
+                    # Extract the offending student
+                    student_name = str(row.get('author', 'Anonymous')).strip()
+                    if not student_name or student_name == "None":
+                        student_name = "Anonymous"
+                    
+                    # Initialize the instructor if not present
+                    if entity_name not in instructor_breakdown:
+                        instructor_breakdown[entity_name] = {
+                            "total_hate": 0, "total_safe": 0, "offenders": {}
+                        }
+                    
+                    if label == 'HATE':
+                        instructor_breakdown[entity_name]["total_hate"] += 1
+                        # Track the specific student
+                        if student_name not in instructor_breakdown[entity_name]["offenders"]:
+                            instructor_breakdown[entity_name]["offenders"][student_name] = 0
+                        instructor_breakdown[entity_name]["offenders"][student_name] += 1
+                    else:
+                        instructor_breakdown[entity_name]["total_safe"] += 1
+                        
+                    detailed_data.append({
+                        'text': row.get('text', ''),
+                        'label': label,
+                        'confidence': row.get('confidence', 0),
+                        'author': student_name,
+                        'target': entity_name
+                    })
+        
+        # Format the data so JS can easily build tabs
+        graph_data = {}
+        for instructor, data in instructor_breakdown.items():
+            sorted_offenders = sorted(data["offenders"].items(), key=lambda x: x[1], reverse=True)
+            
+            graph_data[instructor] = {
+                "labels": [item[0] for item in sorted_offenders][:15], 
+                "hate_counts": [item[1] for item in sorted_offenders][:15],
+                "total_hate": data["total_hate"],
+                "total_safe": data["total_safe"]
+            }
+        
+        # 🎯 Generate the AI Summary (if exactly one instructor is selected)
+        instructor_summaries = {}
+        for instructor in instructor_breakdown.keys():
+            # Extract only this specific instructor's rows to feed into the summarizer
+            inst_feedback = [row for row in detailed_data if row['target'] == instructor]
+            instructor_summaries[instructor] = generate_instructor_summary(instructor, inst_feedback)
+
+        if action == 'download':
+            # 🎯 NEW: We are now passing `graph_data` as the 4th parameter
+            pdf_bytes = generate_rml_insight_report(detailed_data, target_faculty_param, instructor_summaries, graph_data) 
+            response = HttpResponse(pdf_bytes, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="PUPSS_Detailed_Log.pdf"'
+            return response
+            
+        # 🎯 FIXED: Removed the buggy duplicate `graph_data` block
+        return JsonResponse({
+            "detailed_data": detailed_data,
+            "graph_data": graph_data,
+            "instructor_summaries": instructor_summaries
+        })
+    
+    # =========================================================================
+    # BRANCH 2: AGGREGATED SUMMARY 
+    # =========================================================================
+    else:
+        entity_type = request.GET.get('entity', 'student') 
+        try:
+            top_n = int(request.GET.get('top', 10))
+        except ValueError:
+            top_n = 10
+            
+        entity_stats = {}
+
+        for report in reports.iterator():
+            # Safely extract rows for the summary view as well
+            raw_data = report.results_data
+            if isinstance(raw_data, list):
+                rows = raw_data
+            elif isinstance(raw_data, dict):
+                rows = raw_data.get('rows', [])
+            else:
+                rows = []
+
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                    
+                category = 'hate' if str(row.get("label", "SAFE")).upper() == "HATE" else 'safe'
+                column_key = "author" if entity_type == 'student' else "target"
+                entity_name = str(row.get(column_key, "Unknown")).strip()
+                
+                if not entity_name or entity_name == "None":
+                    entity_name = "Unknown"
+
+                # Here is the specific dictionary structure Python was complaining about missing
+                if entity_name not in entity_stats:
+                    entity_stats[entity_name] = {'total': 0, 'hate': 0, 'safe': 0}
+
+                entity_stats[entity_name]['total'] += 1
+                entity_stats[entity_name][category] += 1 
+
+        sorted_entities = sorted(
+            [{'name': k, **v} for k, v in entity_stats.items()],
+            key=lambda x: x['hate'],
+            reverse=True
+        )
+        top_entities = sorted_entities[:top_n]
+
+        for item in top_entities:
+            item['toxicity_pct'] = round((item['hate'] / item['total']) * 100, 2) if item['total'] > 0 else 0
+
+        if action == 'download':
+            pdf_bytes = generate_rml_insight_report(top_entities, entity_type)
+            response = HttpResponse(pdf_bytes, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="PUPSS_Insight_{entity_type.capitalize()}.pdf"'
+            return response
+            
+        return JsonResponse({
+            "graph_data": {
+                "labels": [item['name'] for item in top_entities],
+                "hate_counts": [item['hate'] for item in top_entities],
+                "total_hate": sum(item['hate'] for item in top_entities), 
+                "total_safe": sum(item['safe'] for item in top_entities)
+            },
+            "table_data": top_entities 
+        })
 
 # ── Identity Management Admin Section ────────────────────────────────────────
 @login_required
@@ -591,3 +715,47 @@ def api_delete_report(request, report_id):
         return JsonResponse({'success': False, 'error': 'Report not found.'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+def get_all_faculty(request):
+    try:
+        # Fetch all reports, using .iterator() for memory efficiency
+        reports = HateSpeechReport.objects.all().iterator()
+        
+        # Use a set to automatically filter out duplicate names
+        unique_instructors = set()
+
+        for report in reports:
+            # 1. Grab the raw data
+            raw_data = report.results_data
+            
+            # 2. Safely extract rows whether it's a list or a dict
+            if isinstance(raw_data, list):
+                rows = raw_data
+            elif isinstance(raw_data, dict):
+                rows = raw_data.get('rows', [])
+            else:
+                rows = []
+            
+            # 3. Loop through the rows
+            for row in rows:
+                # ⚠️ Secondary check: Ensure the row itself is a dictionary before using .get()
+                if isinstance(row, dict):
+                    # Extract the target (instructor) name
+                    instructor_name = str(row.get('target', 'Unknown')).strip()
+                    
+                    # Skip invalid, empty, or 'Unknown' entries
+                    if instructor_name and instructor_name not in ["None", "Unknown"]:
+                        unique_instructors.add(instructor_name)
+
+        # Convert the set back to a list and sort it alphabetically
+        faculty_list = sorted(list(unique_instructors))
+        
+        # Return the data in the exact JSON format your JavaScript expects
+        return JsonResponse({
+            "status": "success",
+            "faculty": faculty_list
+        })
+        
+    except Exception as e:
+        # If anything else crashes, send the error back to the browser console
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
