@@ -12,7 +12,7 @@ db.sqlite3-journal
 __pycache__/
 */__pycache__/
 
-pupspeechsafe/__pycache__
+pupspeechsafe/
 pupss/__pycache__/
 pupss/hatedetector/
 pupss/migrations/
