@@ -2,7 +2,10 @@ import json
 import csv
 import io
 import math
+import re
+import PyPDF2
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
@@ -58,10 +61,22 @@ def custom_logout(request):
 @login_required
 @permission_required('pupss.detector_execute', raise_exception=True)
 def preview_columns_view(request):
-    """Reads the header row of the CSV to detect the text column."""
+    """Reads the header row of the CSV to detect the text column, or returns default structure for PDFs."""
     uploaded = request.FILES.get("file")
     if not uploaded:
         return JsonResponse({"error": "No file provided."}, status=400)
+
+    filename = uploaded.name.lower()
+
+    if filename.endswith(".pdf"):
+        # We auto-generate standard columns for PDFs
+        return JsonResponse({
+            "headers": ["text", "author", "target"], 
+            "detected_column": "text"
+        })
+
+    if not filename.endswith(".csv"):
+        return JsonResponse({"error": "Only CSV and PDF files are supported."}, status=400)
 
     raw = uploaded.read(4096).decode("utf-8-sig", errors="replace")
     reader = csv.reader(io.StringIO(raw))
@@ -78,50 +93,153 @@ def preview_columns_view(request):
 @login_required
 @permission_required('pupss.detector_execute', raise_exception=True)
 def process_view(request):
-    """Processes the CSV through the AI model and saves the report."""
+    """Processes the CSV or PDF through the AI model and saves the report."""
     uploaded = request.FILES.get("file")
-    if not uploaded or not uploaded.name.lower().endswith(".csv"):
-        return JsonResponse({"error": "A valid CSV file is required."}, status=400)
+    if not uploaded:
+        return JsonResponse({"error": "A file is required."}, status=400)
+    
+    filename = uploaded.name.lower()
+    if not (filename.endswith(".csv") or filename.endswith(".pdf")):
+        return JsonResponse({"error": "A valid CSV or PDF file is required."}, status=400)
 
     text_column = request.POST.get("text_column") or None
     author_column = request.POST.get("author_column") or None
     target_column = request.POST.get("target_column") or None
 
-    check_file_hash = generate_file_hash(uploaded, text_column)
-    existing_report = HateSpeechReport.objects.filter(file_hash=check_file_hash).first()
+    file_to_process = uploaded
 
-    if existing_report:
-        cache_data = existing_report.results_data
-        cache_data["is_cached"] = True
-        cache_data["report_id"] = existing_report.id
-        return JsonResponse(cache_data)
-    
-    results = process_csv(uploaded, text_column=text_column, author_column=author_column, target_column=target_column)
-    if results.get("error"):
-        return JsonResponse({"error": results["error"]}, status=422)
+    # Handle PDF Data Extraction
+    if filename.endswith(".pdf"):
+        try:
+            reader = PyPDF2.PdfReader(uploaded)
+            full_text = ""
+            for page in reader.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    full_text += extracted + " "
+                    
+            # 1. Normalize ALL whitespace into single spaces
+            single_line_text = re.sub(r'\s+', ' ', full_text).strip()
+            
+            # 2. Extract Faculty Name robustly using anchors
+            faculty_match = re.search(
+                r"Name of Faculty\s*:\s*(.+?)\s*(?:Department|College|Campus|Employment Status|Date Generated|Please be informed)", 
+                single_line_text, 
+                re.IGNORECASE
+            )
+            faculty_name = faculty_match.group(1).strip() if faculty_match else "Unknown Faculty"
 
-    results["is_cached"] = False
-    report_name = f"{uploaded.name[:-4]}_{text_column}"
-    
-    report = HateSpeechReport.objects.create(
-        report_name=report_name,
-        original_filename=uploaded.name,
-        text_column=text_column or "Auto-detected",
-        file_hash=check_file_hash,
-        results_data=results,
-        created_by=request.user,
-    )
+            # 3. Scrub footers and page numbers FIRST before slicing comments
+            single_line_text = re.sub(
+                r'THIS(?: DOCUMENT)? IS (?:A )?(?:SYSTEM|COMPUTER) GENERATED REPORT.*?SIGNATURE IS NOT REQUIRED\.', 
+                ' ', single_line_text, flags=re.IGNORECASE
+            )
+            
+            # Removes ALL variations of page numbers and timestamps (with or without pipes/spaces)
+            page_pattern = r'Page\s+\d+\s+of\s+\d+(?:[\s\|]*\d{0,4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[AP]M)?'
+            single_line_text = re.sub(page_pattern, ' ', single_line_text, flags=re.IGNORECASE)
 
-    results["report_id"] = report.id
-    request.session["hate_results_json"] = json.dumps(results)
-    return JsonResponse({
-        "report_id": report.id,
-        "text_column": results["text_column"],
-        "headers": results["headers"],
-        "stats": results["stats"],
-        "rows": results["rows"], 
-    })
+            # 4. Extract Comments block using boundaries
+            comments = []
+            start_match = re.search(r'Comment\(s\)|Comments:', single_line_text, re.IGNORECASE)
+            
+            if start_match:
+                start_idx = start_match.end()
+                
+                # Search for the end marker ONLY after the start index to prevent backward slicing
+                end_match = re.search(
+                    r'\*\*\*Nothing|Supervisor[\'’]?s Evaluation of Faculty|Faculty Evaluation and Development', 
+                    single_line_text[start_idx:], 
+                    re.IGNORECASE
+                )
+                
+                end_idx = (start_idx + end_match.start()) if end_match else len(single_line_text)
+                raw_text = single_line_text[start_idx:end_idx].strip()
+                
+                # Split intelligently: Handles 1., 2., up to 999.
+                raw_comments = re.split(r'(?:^|\s)\d{1,3}\s*\.\s*', raw_text)
+                
+                for c in raw_comments:
+                    cleaned = c.strip()
+                    
+                    # Filter that throws away the SEF scale tables if they slip through
+                    is_scale_table = re.search(
+                        r'\d{2,4}(?:\.\d+)?\s*(?:VERY SATISFACTORY|SATISFACTORY|FAIR|POOR|OUTSTANDING)|Qualitative Description|Scale 1 2 3',
+                        cleaned,
+                        re.IGNORECASE
+                    )
+                    
+                    if cleaned and len(cleaned) > 3 and not is_scale_table:
+                        comments.append(cleaned)
+                        
+            if not comments:
+                return JsonResponse({"error": "No comments found in the PDF. Ensure it contains a 'Comment(s)' section."}, status=422)
+                
+            # 4. Translate to in-memory CSV format
+            csv_buffer = io.StringIO()
+            writer = csv.writer(csv_buffer)
+            writer.writerow(["text", "author", "target"])
+            
+            for comment in comments:
+                writer.writerow([comment, "Anonymous", faculty_name])
+                
+            csv_bytes = csv_buffer.getvalue().encode('utf-8')
+            
+            # 🎯 CRITICAL FIX: Convert bytes to a Django SimpleUploadedFile so it has .chunks() and acts like a real upload!
+            file_to_process = SimpleUploadedFile(
+                name=uploaded.name.replace(".pdf", ".csv"),
+                content=csv_bytes,
+                content_type='text/csv'
+            )
+            
+            # Force columns to the dynamically generated CSV standards
+            text_column = "text"
+            author_column = "author"
+            target_column = "target"
+            
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to parse PDF: {str(e)}"}, status=422)
 
+    # 🎯 Catch any processor/hashing crashes and return them cleanly
+    try:
+        file_to_process.seek(0)
+        check_file_hash = generate_file_hash(file_to_process, text_column)
+        existing_report = HateSpeechReport.objects.filter(file_hash=check_file_hash).first()
+
+        if existing_report:
+            cache_data = existing_report.results_data
+            cache_data["is_cached"] = True
+            cache_data["report_id"] = existing_report.id
+            return JsonResponse(cache_data)
+        
+        file_to_process.seek(0)
+        results = process_csv(file_to_process, text_column=text_column, author_column=author_column, target_column=target_column)
+        if results.get("error"):
+            return JsonResponse({"error": results["error"]}, status=422)
+
+        results["is_cached"] = False
+        report_name = f"{uploaded.name[:-4]}_{text_column}"
+        
+        report = HateSpeechReport.objects.create(
+            report_name=report_name,
+            original_filename=uploaded.name,
+            text_column=text_column or "Auto-detected",
+            file_hash=check_file_hash,
+            results_data=results,
+            created_by=request.user,
+        )
+
+        results["report_id"] = report.id
+        request.session["hate_results_json"] = json.dumps(results)
+        return JsonResponse({
+            "report_id": report.id,
+            "text_column": results["text_column"],
+            "headers": results["headers"],
+            "stats": results["stats"],
+            "rows": results["rows"], 
+        })
+    except Exception as e:
+        return JsonResponse({"error": f"Server processing error: {str(e)}"}, status=500)
 
 # ── Dashboard API Endpoints (JSON) ───────────────────────────────────────────
 @require_GET
@@ -223,7 +341,8 @@ def dashboard_rows_api(request):
             if start_index <= current_idx < start_index + per_page:
                 hate_words_list = row.get("highlights", []) 
                 target_rows.append({
-                    "report_id": report.id,                
+                    "report_id": report.id, 
+                    "filename": report.original_filename, # 🎯 FIXED: Appended filename so the JS can find it!
                     "raw_label": model_label,              
                     "row_num": row.get("row_num", idx + 1),
                     "text": row.get("text", "No text found"),

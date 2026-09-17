@@ -69,8 +69,8 @@ fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
  * Validates the file, updates the UI, and asks the API to preview the CSV columns.
  */
 async function handleFile(file) {
-    if (!file || !file.name.endsWith('.csv')) {
-        showStatus('Please select a valid .csv file.', true);
+    if (!file || (!file.name.endsWith('.csv') && !file.name.endsWith('.pdf'))) {
+        showStatus('Please select a valid .csv or .pdf file.', true);
         return;
     }
 

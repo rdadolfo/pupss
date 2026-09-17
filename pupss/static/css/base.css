@@ -1,6 +1,7 @@
 /* ==========================================================================
    1. THEME VARIABLES
-   ========================================================================== */
+========================================================================== */
+
 :root {
     /* Brand Colors */
     --primary: #75140c;
@@ -54,7 +55,7 @@
 
     /* Typography */
     --font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
-     color-scheme: light;
+    color-scheme: light;
 }
 
 /* --- Dark Mode Overrides --- */
@@ -96,7 +97,8 @@
 
 /* ==========================================================================
    2. GLOBAL RESETS
-   ========================================================================== */
+========================================================================== */
+
 *, *::before, *::after {
     box-sizing: border-box;
     font-family: var(--font-family-primary);
@@ -124,12 +126,13 @@ a {
 
 /* ==========================================================================
    3. LAYOUT CONTAINERS
-   ========================================================================== */
+========================================================================== */
+
 .wrapper {
     width: 100%;
     max-width: 1100px;
     margin: 15px auto;
-    padding: 1.5rem .5rem;
+    padding: 1.5rem 0.5rem;
     flex: 1;
 }
 
@@ -165,7 +168,8 @@ a {
 
 /* ==========================================================================
    4. FORMS & INPUTS
-   ========================================================================== */
+========================================================================== */
+
 input[type="text"],
 input[type="password"],
 input[type="email"],
@@ -181,7 +185,9 @@ select {
     transition: all 0.2s ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus, 
+textarea:focus, 
+select:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(230, 0, 0, 0.2));
@@ -189,13 +195,14 @@ input:focus, textarea:focus, select:focus {
 
 /* ==========================================================================
    5. TYPOGRAPHY & BRANDING
-   ========================================================================== */
+========================================================================== */
+
 .main-title {
     text-align: center;
     color: var(--main-title);
     margin: 7px auto;
     font-size: 28px;
-    padding: .5rem 1.25rem;
+    padding: 0.5rem 1.25rem;
 }
 
 .logo-title {
@@ -212,15 +219,20 @@ input:focus, textarea:focus, select:focus {
     margin-right: 10px;
     transition: opacity 0.2s ease-in-out;
 }
+
 .logo-theme-dark { display: none !important; }
 .logo-theme-light { display: inline-block !important; }
 .theme-invert { transition: filter 0.2s ease-in-out; }
 
-[data-theme="dark"] .logo-theme-light { display: none !important; }
+[data-theme="dark"] .logo-theme-light { 
+    display: none !important; 
+}
+
 [data-theme="dark"] .logo-theme-dark {
     display: inline-block !important;
     filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.35));
 }
+
 [data-theme="dark"] .icon-dark-mode .icon img,
 [data-theme="dark"] .theme-invert {
     filter: brightness(0) invert(100%);
@@ -228,7 +240,8 @@ input:focus, textarea:focus, select:focus {
 
 /* ==========================================================================
    6. GENERAL BUTTONS
-   ========================================================================== */
+========================================================================== */
+
 /* --- Base Button Structure --- */
 .btn {
     display: inline-flex;
@@ -243,7 +256,10 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* --- Primary Action Buttons --- */
-.login-btn, .logout-btn, .submit-row input, .btn-submit {
+.login-btn, 
+.logout-btn, 
+.submit-row input, 
+.btn-submit {
     background: var(--accent);
     color: #ffffff;
     border: none;
@@ -254,10 +270,26 @@ input:focus, textarea:focus, select:focus {
     font-size: 14px;
     transition: background 0.2s ease, opacity 0.2s ease;
 }
-.btn-submit { background: var(--maroon-base); }
-.btn-submit a, .login-btn a, .logout-btn a { color: #ffffff !important; }
-.login-btn:hover, .logout-btn:hover, .submit-row input:hover { opacity: 0.85; }
-.btn-submit:hover { background: var(--maroon-hover); }
+
+.btn-submit { 
+    background: var(--maroon-base); 
+}
+
+.btn-submit a, 
+.login-btn a, 
+.logout-btn a { 
+    color: #ffffff !important; 
+}
+
+.login-btn:hover, 
+.logout-btn:hover, 
+.submit-row input:hover { 
+    opacity: 0.85; 
+}
+
+.btn-submit:hover { 
+    background: var(--maroon-hover); 
+}
 
 /* --- Cancel & Secondary Buttons --- */
 .btn-cancel {
@@ -273,7 +305,10 @@ input:focus, textarea:focus, select:focus {
     align-items: center;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
-.btn-cancel:hover { background: var(--border-light); }
+
+.btn-cancel:hover { 
+    background: var(--border-light); 
+}
 
 /* --- Outline Buttons (Variations) --- */
 .btn-outline {
@@ -285,7 +320,11 @@ input:focus, textarea:focus, select:focus {
     font-size: 0.9rem;
     font-weight: 600;
 }
-.btn-outline:hover { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.btn-outline:hover { 
+    background: var(--primary); 
+    color: var(--primary-fg); 
+    border-color: var(--primary); 
+}
 
 .btn-maroon { background: var(--maroon-base); color: #ffffff; border: 1px solid var(--maroon-base); }
 .btn-maroon:hover { background: var(--maroon-hover); border-color: var(--maroon-hover); }
@@ -316,12 +355,25 @@ input:focus, textarea:focus, select:focus {
 
 /* ==========================================================================
    7. PAGINATION & FILTER CONTROLS
-   ========================================================================== */
-.pagination-wrapper { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
-.page-numbers-bucket { display: flex; gap: 6px; }
+========================================================================== */
+
+.pagination-wrapper { 
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-end; 
+    gap: 8px; 
+    margin-bottom: 12px; 
+}
+
+.page-numbers-bucket { 
+    display: flex; 
+    gap: 6px; 
+}
 
 /* --- Page Buttons & Toggles --- */
-.page-btn, .page-numbers-bucket button, .btn-theme-toggle {
+.page-btn, 
+.page-numbers-bucket button, 
+.btn-theme-toggle {
     background: var(--body-bg) !important;
     border: 1px solid var(--border) !important;
     color: var(--body-fg) !important;
@@ -332,22 +384,29 @@ input:focus, textarea:focus, select:focus {
     font-weight: 500;
     transition: background 0.2s ease;
 }
+
 .page-btn { padding: 8px 16px; }
 .page-numbers-bucket button { padding: 6px 12px; }
 .btn-theme-toggle { padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px; }
 
 /* --- Hover & Active States --- */
-.page-btn:hover:not(:disabled), .page-numbers-bucket button:hover:not(.active), .btn-theme-toggle:hover {
+.page-btn:hover:not(:disabled), 
+.page-numbers-bucket button:hover:not(.active), 
+.btn-theme-toggle:hover {
     background: var(--card-primary) !important;
 }
-.page-numbers-bucket button.active, .filter-btn.active {
+
+.page-numbers-bucket button.active, 
+.filter-btn.active {
     background: var(--highlight) !important;
     color: #121212 !important;
     border-color: var(--highlight) !important;
     font-weight: bold;
     box-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
 }
-.page-btn:disabled, .page-btn[disabled] {
+
+.page-btn:disabled, 
+.page-btn[disabled] {
     background: var(--body-bg) !important;
     color: var(--footer) !important;
     border-color: var(--border) !important;
@@ -356,7 +415,15 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* --- Filter Controls --- */
-.table-controls { display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; flex-wrap: wrap; }
+.table-controls { 
+    display: none; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 15px; 
+    padding-top: 10px; 
+    flex-wrap: wrap; 
+}
+
 .filter-btn {
     padding: 0.35rem 0.9rem;
     border-radius: 20px;
@@ -369,10 +436,21 @@ input:focus, textarea:focus, select:focus {
 
 /* ==========================================================================
    8. TABLES & ALIGNMENT
-   ========================================================================== */
+========================================================================== */
+
 #resultsSection { display: none; }
-.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+
+.table-wrap { 
+    overflow-x: auto; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.875rem; 
+}
 
 th {
     background: var(--primary);
@@ -387,15 +465,28 @@ th {
     white-space: nowrap;
 }
 
-td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--body-fg); }
+td { 
+    padding: 0.7rem 1rem; 
+    border-bottom: 1px solid var(--border); 
+    vertical-align: top; 
+    color: var(--body-fg); 
+}
+
 tr { page-break-inside: avoid; }
 tr:last-child td { border-bottom: none; }
 tr.hate-row { background: var(--hate-bg); }
 tr.safe-row { background: transparent; }
 tr:hover td { background: var(--table-hover); }
 
-.text-cell { max-width: 320px; line-height: 1.5; }
-.row-num { opacity: 0.7; font-size: 0.8rem; }
+.text-cell { 
+    max-width: 320px; 
+    line-height: 1.5; 
+}
+
+.row-num { 
+    opacity: 0.7; 
+    font-size: 0.8rem; 
+}
 
 /* --- Action Column Alignment --- */
 .action-column-wrap {
@@ -403,6 +494,7 @@ tr:hover td { background: var(--table-hover); }
     width: 1% !important;
     padding: 8px 16px !important;
 }
+
 .action-column-wrap .btn {
     height: 28px !important;
     min-width: 32px;
@@ -411,34 +503,36 @@ tr:hover td { background: var(--table-hover); }
 
 /* ==========================================================================
    9. DATA VISUALIZATION (Badges & Charts)
-   ========================================================================== */
- .user-profile-badge {
+========================================================================== */
+
+.user-profile-badge {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 14px;
     border-radius: 20px;
     margin-right: 5px;
-    font-weight: 600;
-    font-size: 1rem;
     font-weight: bold;
+    font-size: 1rem;
     cursor: default;
     transition: all 0.2s ease;
 }
+
 .profile-icon {
     font-size: 1.1rem;
     line-height: 1;
-}
-.profile-name {
-    text-transform: capitalize;
-}
-[data-theme="dark"] .profile-icon {
-    filter: invert(1) brightness(200%);
-}
-.profile-icon {
     display: inline-block;
     vertical-align: middle;
 }
+
+.profile-name {
+    text-transform: capitalize;
+}
+
+[data-theme="dark"] .profile-icon {
+    filter: invert(1) brightness(200%);
+}
+
 .badge {
     display: inline-block;
     padding: 0.5rem 1.5rem;
@@ -472,30 +566,53 @@ tr:hover td { background: var(--table-hover); }
     margin-top: 4px;
     overflow: hidden;
 }
+
 .confidence-fill { height: 100%; border-radius: 3px; }
 .conf-hate { background: var(--hate); }
 .conf-safe { background: var(--safe); }
 
 /* ==========================================================================
    10. SYSTEM MODAL
-   ========================================================================== */
+========================================================================== */
+
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(3px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999; opacity: 0; pointer-events: none;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 9999; 
+    opacity: 0; 
+    pointer-events: none;
     transition: opacity 0.2s ease;
 }
-.modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+.modal-overlay.show { 
+    opacity: 1; 
+    pointer-events: auto; 
+}
 
 .modal-box {
-    background: var(--body-bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 30px; width: 90%; max-width: 420px;
-    text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transform: translateY(-20px); transition: transform 0.2s ease;
+    background: var(--body-bg); 
+    border: 1px solid var(--border);
+    border-radius: 12px; 
+    padding: 30px; 
+    width: 90%; 
+    max-width: 420px;
+    text-align: center; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-20px); 
+    transition: transform 0.2s ease;
 }
-.modal-overlay.show .modal-box { transform: translateY(0); }
+
+.modal-overlay.show .modal-box { 
+    transform: translateY(0); 
+}
 
 .modal-icon { font-size: 45px; margin-bottom: 15px; line-height: 1; }
 .modal-title { margin: 0 0 10px; font-size: 1.3rem; font-weight: 700; color: var(--body-fg); }
@@ -504,24 +621,104 @@ tr:hover td { background: var(--table-hover); }
 
 /* --- Modal specific buttons --- */
 #customModalCancel {
-    background: var(--bg); color: var(--body-fg); border: 1px solid var(--border);
-    padding: 9px 14px; font-size: 13px; font-weight: bold; border-radius: 7px;
-    cursor: pointer; transition: background 0.2s ease;
+    background: var(--bg); 
+    color: var(--body-fg); 
+    border: 1px solid var(--border);
+    padding: 9px 14px; 
+    font-size: 13px; 
+    font-weight: bold; 
+    border-radius: 7px;
+    cursor: pointer; 
+    transition: background 0.2s ease;
 }
-#customModalCancel:hover { background: var(--card-primary); }
+#customModalCancel:hover { 
+    background: var(--card-primary); 
+}
 
 #customModalConfirm {
-    background: var(--primary); color: #ffffff; border: none;
-    padding: 10px 35px; border-radius: 7px; font-weight: bold;
-    cursor: pointer; font-size: 14px; transition: background 0.2s ease;
+    background: var(--primary); 
+    color: #ffffff; 
+    border: none;
+    padding: 10px 35px; 
+    border-radius: 7px; 
+    font-weight: bold;
+    cursor: pointer; 
+    font-size: 14px; 
+    transition: background 0.2s ease;
 }
-#customModalConfirm:hover { background: var(--accent); }
+#customModalConfirm:hover { 
+    background: var(--accent); 
+}
 
 /* ==========================================================================
    11. MOBILE RESPONSIVENESS
-   ========================================================================== */
+========================================================================== */
+
+.landscape-warning {
+    display: none;
+}
+
+/* --- 1. General Mobile Layout (Applies to small screens in ANY orientation) --- */
 @media (max-width: 640px) {
-    .header { flex-direction: column; gap: 15px; text-align: center; }
-    .footer { flex-direction: column; gap: 10px; padding: 20px; }
-    h1 { font-size: 1.5rem; }
+    .header { 
+        flex-direction: row; 
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px; 
+    }
+    
+    .footer { 
+        flex-direction: column; 
+        gap: 10px; 
+        padding: 20px; 
+        text-align: center;
+    }
+    
+    h1 { 
+        font-size: 1.5rem; 
+    }
+}
+
+/* --- 2. Landscape Warning (ONLY triggers in portrait mode on phones/tablets) --- */
+@media (max-width: 640px) and (orientation: portrait) {
+    .landscape-warning {
+        display: flex; 
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        inset: 0; 
+        background-color: var(--body-bg); 
+        color: var(--body-fg); 
+        z-index: 99999; 
+    }
+    
+    .warning-content {
+        padding: 20px;
+        background-color: var(--card-primary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        max-width: 80%;
+        text-align: center;
+    }
+}
+
+/* --- 3. Mobile Landscape Adjustments (For short, wide screens) --- */
+@media (max-height: 600px) and (orientation: landscape) {
+    .header {
+        padding: 5px 15px;
+    }
+
+    .wrapper {
+        margin: 5px auto;
+        padding: 0.5rem;
+    }
+
+    .main-title {
+        font-size: 1.25rem;
+        padding: 0.25rem;
+    }
+    
+    .footer {
+        padding: 10px;
+    }
 }
