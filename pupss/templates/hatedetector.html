@@ -18,20 +18,22 @@
         <form id="uploadForm" onsubmit="event.preventDefault();">
             <p class="card-title">📂 Upload File</p>
 
-            <div class="drop-zone" id="dropZone">
-                <div class="drop-icon icon-dark-mode">
-                    <div class="icon">
-                        <img src="{% static 'img/data.png' %}" alt="File Icon"/>
-                    </div>
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-icon icon-dark-mode">
+                <div class="icon">
+                    <img src="{% static 'img/data.png' %}" alt="File Icon"/>
                 </div>
-                <!-- 🎯 Updated instructions -->
-                <p class="drop-label">Drag &amp; drop your CSV or PDF here, or <strong>click to browse</strong></p>
-                
-                <!-- 🎯 Added .pdf to accept attribute -->
-                <input type="file" id="fileInput" accept=".csv, .pdf" />
-                
-                <div id="fileName"></div>
             </div>
+            
+            <p class="drop-label">Drag &amp; drop your CSV or PDF <strong>files</strong> here, or <strong>click to browse</strong></p>
+            <input type="file" id="fileInput" accept=".csv, .pdf" multiple />
+            
+            <!-- 🎯 NEW: Scrollable list container for multiple files -->
+            <div id="fileListContainer" class="file-list-container" style="display: none;">
+                <div id="fileCountBadge" class="file-count-badge"></div>
+                <ul id="fileList" class="file-list"></ul>
+            </div>
+        </div>
 
             <div class="col-row">
                 <div class="field">

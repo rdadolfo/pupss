@@ -53,6 +53,52 @@
     min-height: 1.2em;
 }
 
+/* ── Batch Upload UI ─────────────────────────────────────────── */
+.file-list-container {
+    margin-top: 1rem;
+    background: var(--card-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.file-count-badge {
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--body-fg);
+}
+
+.file-list li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+}
+
+.file-list li:last-child {
+    border-bottom: none;
+}
+
+.file-size {
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
 /* ── 3. Form Controls & Buttons ──────────────────────────────────────────── */
 .col-row {
     display: flex;

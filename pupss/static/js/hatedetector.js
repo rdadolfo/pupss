@@ -3,7 +3,7 @@
    ========================================================================== */
 
 // --- State Variables ---
-let uploadedFile = null;       // Stores the CSV file the user uploads
+let uploadedFiles = [];       // Stores the CSV file the user uploads
 let allRows = [];              // Master backup of all rows returned by the API
 let currentTableData = [];     // The currently active rows (changes when user clicks a filter)
 let currentPage = 1;           // Tracks which page of the table the user is viewing
@@ -51,14 +51,27 @@ dropZone.addEventListener('dragover', (e) => {
     e.preventDefault(); 
     dropZone.classList.add('drag-over'); 
 });
+
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    handleFile(e.dataTransfer.files[0]);
+    // Safely grab all dropped files and convert them to an array
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(Array.from(e.dataTransfer.files));
+    }
 });
-fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 
+fileInput.addEventListener('change', (e) => {
+    // Safely grab all selected files and convert them to an array
+    if (e.target.files && e.target.files.length > 0) {
+        handleFiles(Array.from(e.target.files));
+        
+        // Reset the input so the user can upload the same files again if needed
+        e.target.value = ''; 
+    }
+});
 
 /* ==========================================================================
    3. FILE PROCESSING PIPELINE
@@ -68,20 +81,41 @@ fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
  * Triggered when a file is dropped or selected.
  * Validates the file, updates the UI, and asks the API to preview the CSV columns.
  */
-async function handleFile(file) {
-    if (!file || (!file.name.endsWith('.csv') && !file.name.endsWith('.pdf'))) {
-        showStatus('Please select a valid .csv or .pdf file.', true);
+async function handleFiles(files) {
+    if (!files || files.length === 0) {
+        showStatus('Please select valid .csv or .pdf files.', true);
         return;
     }
 
-    uploadedFile = file;
-    fileNameLabel.textContent = `${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
-    fileNameLabel.style.display = 'block';
+    uploadedFiles = files; 
+    
+    // 🎯 NEW: DOM elements for the file list
+    const fileListContainer = document.getElementById('fileListContainer');
+    const fileCountBadge = document.getElementById('fileCountBadge');
+    const fileList = document.getElementById('fileList');
+    
+    // Clear previous list
+    fileList.innerHTML = '';
+    
+    // Populate the list with file names and sizes
+    uploadedFiles.forEach(file => {
+        const li = document.createElement('li');
+        const sizeKB = (file.size / 1024).toFixed(1);
+        
+        li.innerHTML = `
+            <span class="file-name">📄 ${file.name}</span>
+            <span class="file-size">${sizeKB} KB</span>
+        `;
+        fileList.appendChild(li);
+    });
 
-    showStatus('Reading column headers…');
+    fileCountBadge.textContent = `${uploadedFiles.length} file(s) queued for processing`;
+    fileListContainer.style.display = 'block';
+
+    showStatus('Reading column headers from the first file…');
     
     const fd = new FormData();
-    fd.append('file', file);
+    fd.append('file', files[0]); 
 
     try {
         const r = await apiFetch('/hatedetector/preview/', { method: 'POST', body: fd });
@@ -93,10 +127,10 @@ async function handleFile(file) {
         }
         
         populateColumns(d.headers, d.detected_column);
-        showStatus(`✅ File loaded – ${d.headers.length} columns detected. Select text column and click Detect.`);
+        showStatus(`✅ ${uploadedFiles.length} File(s) loaded. Select text column and click Detect.`);
     } catch (e) {
         populateColumns([], null);
-        showStatus('File loaded. Click Detect to process.');
+        showStatus(`${uploadedFiles.length} File(s) loaded. Click Detect to process.`);
     }
 
     setRunBtn(true);
@@ -153,43 +187,68 @@ function populateColumns(headers, detected) {
  * Saves the result to sessionStorage upon success.
  */
 async function runDetection() {
-    if (!uploadedFile) return;
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
 
     setRunBtn(false, '⏳ Processing…');
-    showStatus('Running hate speech detection — please wait…');
-
-    const fd = new FormData();
-    fd.append('file', uploadedFile);
     
     const col = document.getElementById('columnSelect').value;
     const authorCol = document.getElementById('authorSelect').value;
     const targetCol = document.getElementById('targetSelect').value;
-    if (col) fd.append('text_column', col);
-    if (authorCol) fd.append('author_column', authorCol);
-    if (targetCol) fd.append('target_column', targetCol);
 
-    try {
-        const r = await apiFetch('/hatedetector/process/', { method: 'POST', body: fd });
-        const d = await r.json();
+    // 🎯 NEW: Master variables to hold the combined data from all files
+    let combinedRows = [];
+    let combinedStats = { total: 0, hate_count: 0, not_hate_count: 0, hate_pct: 0 };
+    
+    // 🎯 NEW: Loop through each file sequentially
+    for (let i = 0; i < uploadedFiles.length; i++) {
+        const currentFile = uploadedFiles[i];
+        showStatus(`Processing file ${i + 1} of ${uploadedFiles.length}: ${currentFile.name}…`);
 
-        if (d.error) {
-            showStatus(d.error, true);
-        } else {
-            sessionStorage.setItem('hatedetector_results', JSON.stringify(d));
-            sessionStorage.setItem('hatedetector_filename', uploadedFile.name);
+        const fd = new FormData();
+        fd.append('file', currentFile);
+        if (col) fd.append('text_column', col);
+        if (authorCol) fd.append('author_column', authorCol);
+        if (targetCol) fd.append('target_column', targetCol);
 
-            renderResults(d);
-            
-            if (d.is_cached) {
-                showStatus(`⚡ Instantly loaded previously saved results for column "${col}"!`);
-            } else {
-                showStatus(`✅ Done! Processed and saved "${uploadedFile.name}" with ${d.stats.total} rows.`);
+        try {
+            const r = await apiFetch('/hatedetector/process/', { method: 'POST', body: fd });
+            const d = await r.json();
+
+            if (d.error) {
+                console.error(`Error in ${currentFile.name}:`, d.error);
+                continue; // Skip this file and move to the next one if it fails
             }
+
+            // 🎯 NEW: Aggregate the data from this specific file into the master variables
+            combinedRows = combinedRows.concat(d.rows);
+            combinedStats.total += d.stats.total;
+            combinedStats.hate_count += d.stats.hate_count;
+            combinedStats.not_hate_count += d.stats.not_hate_count;
+            
+        } catch (e) {
+            console.error(`Server error on ${currentFile.name}:`, e.message);
         }
-    } catch (e) {
-        showStatus('Server error: ' + e.message, true);
+    }
+    
+    if (combinedRows.length === 0) {
+        showStatus('All files failed to process. Check the console for errors.', true);
+        setRunBtn(true, '🔍 Detect Hate Speech');
+        return;
     }
 
+    // 🎯 NEW: Calculate the final overall percentage
+    combinedStats.hate_pct = combinedStats.total > 0 ? 
+        Math.round((combinedStats.hate_count / combinedStats.total) * 100) : 0;
+
+    const finalData = { rows: combinedRows, stats: combinedStats };
+    
+    // Save combined results to session storage
+    sessionStorage.setItem('hatedetector_results', JSON.stringify(finalData));
+    sessionStorage.setItem('hatedetector_filename', `${uploadedFiles.length} files processed`);
+
+    renderResults(finalData);
+    showStatus(`✅ Done! Processed ${uploadedFiles.length} files with a total of ${combinedStats.total} rows.`);
+    
     setRunBtn(true, '🔍 Detect Hate Speech');
 }
 
@@ -536,9 +595,3 @@ function renderInstructorReports(groupedData) {
         container.appendChild(section);
     }
 }
-
-// 1. Get the grouped data
-const groupedByFaculty = groupFeedbackByInstructor(processedResults);
-
-// 2. Render it to the screen
-renderInstructorReports(groupedByFaculty);
