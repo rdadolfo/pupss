@@ -1,0 +1,279 @@
+#printableReportArea {
+    width: 100%;
+    padding: 20px;
+}
+
+/* ==========================================================================
+   LAYOUT & CONTAINERS
+   ========================================================================== */
+.table-control-wrap {
+    padding: 20px; 
+    margin-bottom: 30px; 
+    background: var(--bg-card);
+    display: flex; 
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-row {
+    display: flex; 
+    gap: 20px; 
+    align-items: flex-end; 
+    width: 100%;
+}
+
+.mode-controls {
+    display: flex;
+    gap: 20px;
+    flex: 2;
+}
+
+.field {
+    flex: 1;
+}
+
+.field-shared {
+    flex: 1.5;
+}
+
+.field label {
+    font-weight: bold; 
+    margin-bottom: 8px; 
+    display: block;
+    color: var(--body-fg);
+}
+
+.button-wrap {
+    flex: 1; 
+}
+
+.button-wrap .btn-report {
+    width: 100%; 
+    padding: 10px 24px; 
+    height: 42px;
+}
+
+.btn-pdf {
+    display: none; 
+    padding: 8px 16px;
+}
+
+/* ==========================================================================
+   CUSTOM MULTI-SELECT CHECKBOX DROPDOWN
+   ========================================================================== */
+.custom-multi-select {
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+.select-trigger {
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.select-trigger:hover {
+    border-color: var(--maroon-base);
+}
+
+.select-options-panel {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    background-color: var(--body-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+}
+
+.select-options-panel.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+.custom-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    color: var(--body-fg);
+    transition: background 0.2s;
+    margin: 0;
+}
+
+.custom-option:hover {
+    background-color: var(--card-primary);
+}
+
+.custom-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--maroon-base);
+    cursor: pointer;
+}
+
+[data-theme="dark"] .select-options-panel {
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+}
+
+/* Input Fields */
+#reportFileSelect, #entitySelect, #topNSelect, #targetFacultySelect, .form-control {
+    width: 100%; 
+    padding: 10px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border);
+    background-color: var(--body-bg); 
+    color: var(--body-fg);
+}
+
+/* ==========================================================================
+   CHARTS & TABLES
+   ========================================================================== */
+#chartsContainer {
+    display: none; 
+    grid-template-columns: 2fr 1fr; 
+    gap: 20px; 
+    margin-bottom: 40px; 
+    align-items: stretch;
+}
+
+.chart-wrap {
+    background: var(--bg-card);
+    padding: 20px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+    display: flex; 
+    flex-direction: column;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#barChartTitle, .doughnutChartTitle, #tableTitle {
+    margin: 0 15px 15px;
+    text-align: center;
+    color: var(--body-fg);
+}
+
+.barChart {
+    position: relative; 
+    height: 280px; 
+    width: 100%; 
+    flex: 1;
+}
+
+.doughnutChart {
+    position: relative; 
+    height: 280px; 
+    width: 100%; 
+    flex: 1; 
+    display: flex; 
+    justify-content: center;
+}
+
+#insightTableContainer {
+    display: none;
+}
+
+#insightTableBody tr:hover td {
+    background-color: var(--table-hover) !important;
+}
+
+/* 🎯 CONFIDENCE TEXT FIX: Forces the large HTML font back to a medium/small size */
+#insightTableBody td font {
+    font-size: 0.85em !important;
+    color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   SEGMENTED CONTROL (TOGGLE TAB)
+   ========================================================================== */
+.report-mode-toggle {
+    display: flex;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+    width: 100%;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    color: var(--body-fg);
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+    background-color: var(--card-primary);
+}
+
+.mode-btn.active {
+    background-color: var(--maroon-base);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ==========================================================================
+   HORIZONTAL SCROLLING INSTRUCTOR TABS
+   ========================================================================== */
+.horizontal-tabs-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: nowrap; 
+    overflow-x: auto; 
+    scroll-behavior: smooth; 
+    -webkit-overflow-scrolling: touch; 
+    padding-bottom: 8px; 
+    scrollbar-width: thin;
+    scrollbar-color: var(--maroon-base) transparent;
+}
+
+.horizontal-tabs-container::-webkit-scrollbar {
+    height: 6px; 
+}
+
+.horizontal-tabs-container::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+.horizontal-tabs-container::-webkit-scrollbar-thumb {
+    background-color: var(--maroon-base);
+    border-radius: 10px;
+}
+
+.horizontal-tabs-container .btn {
+    white-space: nowrap;
+    flex-shrink: 0; 
+}
+
+.active-tab {
+    background-color: var(--maroon-base) !important;
+    color: white !important;
+    border-color: var(--maroon-base) !important;
+}

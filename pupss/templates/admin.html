@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} PUPSS | Admin Settings {% endblock %}
+
+{% block content %}
+
+
+<script>
+    const createUserUrl = '/admin-setting/user/add/';
+    const createGroupUrl = '/admin-setting/group/add/';
+    const canManageUsers = {% if perms.pupss.system_manage %}true{% else %}false{% endif %};
+    const canManageSystem = {% if perms.pupss.system_manage %}true{% else %}false{% endif %};
+    const djangoCsrfToken = '{{ csrf_token }}';
+</script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+
+<div class="wrapper">
+    <h1 class="main-title">Admin Settings</h1>
+
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert-custom alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %}" role="alert">
+                    <span>{% if message.tags == 'success' %}✅{% else %}❌{% endif %}</span>
+                    <strong>{% if message.tags == 'success' %}Success{% else %}Error{% endif %}:</strong> {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <section class="cards-grid">
+        <div class="stat-card" onclick="switchViewMode('users')">
+            <div class="card-body icon-dark-mode">
+                <div class="icon"><img src="{% static 'img/add_user.png' %}" alt="Users" class="card-icon"/></div>
+                <h3 id="user-count">{{ total_users }}</h3>
+            </div>
+            <h2>Total Users</h2>
+        </div>
+
+        <div class="stat-card" onclick="switchViewMode('groups')">
+            <div class="card-body icon-dark-mode">
+                <div class="icon"><img src="{% static 'img/add_group.png' %}" alt="Groups" class="card-icon"/></div>
+                <h3 id="group-count">{{ total_groups }}</h3>
+            </div>
+            <h2>Total Groups</h2>
+        </div>
+    </section>
+
+    <div id="recentReportsContainer" class="management-table-container container-hidden">
+        <div id="tableControl" class="table-controls-header">
+            <h2 id="dynamicTableTitle" class="dynamic-view-title"></h2>
+            <button id="addEntityBtn" onclick="window.location.href=this.getAttribute('data-url')" class="btn-submit"></button>
+        </div>
+        
+        <div class="pagination-wrapper">
+            <button id="reportsPrevBtn" onclick="changePage(-1)" class="page-btn">◀ Previous</button>
+            <div id="reportsPageNumbers" class="page-numbers-bucket"></div>
+            <button id="reportsNextBtn" onclick="changePage(1)" class="page-btn">Next ▶</button>
+        </div> 
+
+        <div class="table-wrap">
+            <table id="GlobalAdminTable">
+                <thead id="TableHead"></thead>
+                <tbody id="TableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/modal.js' %}"></script>
+<script src="{% static 'js/admin.js' %}"></script>
+{% endblock %}

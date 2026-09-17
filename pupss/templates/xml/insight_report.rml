@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="insight_report.pdf">
+    <docinit>
+        <registerTTFont faceName="Segoe-ui" fileName="{{ font_path }}/Segoe-UI.ttf"/>
+        <registerTTFont faceName="Segoe-ui-Bold" fileName="{{ font_path }}/Segoe-UI-Bold.ttf"/>
+    </docinit>
+    
+    <!-- Page Layout -->
+    <template>
+        <pageTemplate id="main">
+            <!-- The Persistent Header -->
+            <pageGraphics>
+                <image file="{{ logo_path }}" x="1in" y="10.1in" width="0.8in" height="0.8in" preserveAspectRatio="1"/>
+                
+                <setFont name="Segoe-ui-Bold" size="14"/>
+                <drawString x="2in" y="10.6in">PUPSS Analytics Dashboard</drawString>
+                
+                <setFont name="Segoe-ui" size="10"/>
+                <fill color="#7f8c8d"/> 
+                <drawString x="2in" y="10.4in">Official Insight Report</drawString>
+                
+                <stroke color="#bdc3c7"/>
+                <lines>1in 10in 7.5in 10in</lines>
+
+                <!-- FIXED FOOTER -->
+                <place x="1in" y="0.4in" width="4.0in" height="0.4in">
+                    <para style="FooterLeft">THIS DOCUMENT IS SYSTEM GENERATED REPORT BY PUP SpeechSafe.</para>
+                </place>
+                <place x="5in" y="0.4in" width="2.5in" height="0.4in">
+                    <para style="FooterRight">Page <pageNumber/> | {{ generated_time }}</para>
+                </place>
+            </pageGraphics>
+
+            <frame id="content" x1="1in" y1="1in" width="6.5in" height="8.7in"/>
+        </pageTemplate>
+    </template>
+
+    <!-- Stylesheet -->
+    <stylesheet>
+        <!-- Table Styles -->
+        <blockTableStyle id="DataTableStyle">
+            <blockBackground colorName="#fef6f5" start="0,1" stop="-1,1"/>
+            <blockFont name="Segoe-ui-Bold" size="10" start="0,1" stop="-1,1"/>
+            <lineStyle kind="LINEABOVE" colorName="#75140c" thickness="1.5" start="0,1" stop="-1,1"/>
+            <blockBackground colorName="#75140c" start="0,0" stop="-1,0"/>
+            <blockTextColor colorName="white" start="0,0" stop="-1,0"/>
+            <blockFont name="Segoe-ui-Bold" size="10" start="0,0" stop="-1,0"/>
+            <blockAlignment value="LEFT" start="0,0" stop="-1,0"/>
+            <blockValign value="MIDDLE" start="0,0" stop="-1,0"/>
+            <blockTopPadding length="12" start="0,0" stop="-1,0"/>
+            <blockBottomPadding length="12" start="0,0" stop="-1,0"/>
+            <blockLeftPadding length="8" start="0,0" stop="-1,0"/>
+            <blockRightPadding length="8" start="0,0" stop="-1,0"/>
+            <blockFont name="Segoe-ui" size="10" start="0,1" stop="-1,-1"/>
+            <blockAlignment value="LEFT" start="0,1" stop="-1,-1"/>
+            <blockValign value="TOP" start="0,1" stop="-1,-1"/>
+            <blockTopPadding length="10" start="0,1" stop="-1,-1"/>
+            <blockBottomPadding length="10" start="0,1" stop="-1,-1"/>
+            <blockLeftPadding length="8" start="0,1" stop="-1,-1"/>
+            <blockRightPadding length="8" start="0,1" stop="-1,-1"/>
+            <lineStyle kind="LINEBELOW" colorName="#75140c" thickness=".5" start="0,1" stop="-1,-1"/>
+            <lineStyle kind="LINEBEFORE" colorName="#75140c" thickness=".5" start="0,0" stop="0,-1"/>
+            <lineStyle kind="LINEAFTER" colorName="#75140c" thickness=".5" start="-1,0" stop="-1,-1"/>
+        </blockTableStyle>
+        
+        <!-- General Styles -->
+        <paraStyle name="Title" fontName="Segoe-ui-Bold" fontSize="14" spaceAfter="15"/>
+        <paraStyle name="FooterLeft" fontName="Segoe-ui" fontSize="8" textColor="#7f8c8d" alignment="LEFT"/>
+        <paraStyle name="FooterRight" fontName="Segoe-ui" fontSize="8" textColor="#7f8c8d" alignment="RIGHT"/>
+        
+        <!-- Badge Styles -->
+        <paraStyle name="BadgeHate" fontName="Segoe-ui-Bold" fontSize="9" textColor="#e74c3c" backColor="#fdeaea" borderColor="#e74c3c" borderWidth="1" borderPadding="2" borderRadius="4" alignment="CENTER"/>
+        <paraStyle name="BadgeSafe" fontName="Segoe-ui-Bold" fontSize="9" textColor="#2ecc71" backColor="#eafaf1" borderColor="#2ecc71" borderWidth="1" borderPadding="2" borderRadius="4" alignment="CENTER"/>
+        
+        <!-- 🎯 NEW: Detailed Mode Styles -->
+        <paraStyle name="InstructorTitle" fontName="Segoe-ui-Bold" fontSize="16" textColor="#75140c" spaceAfter="15"/>
+        <paraStyle name="SectionHeaderSafe" fontName="Segoe-ui-Bold" fontSize="12" textColor="#2ecc71" spaceBefore="15" spaceAfter="10"/>
+        <paraStyle name="SectionHeaderHate" fontName="Segoe-ui-Bold" fontSize="12" textColor="#e74c3c" spaceBefore="15" spaceAfter="10"/>
+        <paraStyle name="FeedbackText" fontName="Segoe-ui" fontSize="10" spaceAfter="15" leading="15"/>
+    </stylesheet>
+
+    <!-- Document Content -->
+    <story>
+
+        {% if is_detailed %}
+            
+            {% for instructor, summary in instructor_summaries.items %}
+                <para style="InstructorTitle">Audit Log: {{ instructor }}</para>
+                
+                {% if summary.chart_path %}
+                <illustration width="6.5in" height="2.3in">
+                    <image file="{{ summary.chart_path }}" x="0" y="0" width="6.5in" height="2.3in"/>
+                </illustration>
+                <spacer length="15"/>
+                {% endif %}
+
+                <para style="SectionHeaderSafe">Top Representative Safe Feedback</para>
+                <para style="FeedbackText">{{ summary.strengths|safe }}</para> 
+                
+                <para style="SectionHeaderHate">High-Priority Areas of Concern</para>
+                <para style="FeedbackText">{{ summary.concerns|safe }}</para>
+                
+                {% if not forloop.last %}
+                    <nextPage/>
+                {% endif %}
+            {% endfor %}
+
+        {% else %}
+
+            {% if chart_path %}
+            <illustration width="6.5in" height="2.6in">
+                <image file="{{ chart_path }}" x="0" y="0" width="6.5in" height="2.6in"/>
+            </illustration>
+            <spacer length="20"/>
+            {% endif %}
+
+            <para style="Title">Detailed Entity Breakdown</para>
+
+            <blockTable style="DataTableStyle" colWidths="0.6in, 2.0in, 0.9in, 0.9in, 0.9in, 1.2in">
+                <tr>
+                    <td>Rank</td>
+                    <td>{{ name_header }} / ID</td> 
+                    <td>Total</td>
+                    <td>Hate</td>
+                    <td>Safe</td>
+                    <td>Toxicity %</td>
+                </tr>
+                
+                {% for item in top_entities %}
+                <tr>
+                    <td>#{{ forloop.counter }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.total }}</td> 
+                    <td><para style="BadgeHate">{{ item.hate }}</para></td>
+                    <td><para style="BadgeSafe">{{ item.safe }}</para></td>
+                    <td>{{ item.toxicity_pct }}%</td>
+                </tr>
+                {% endfor %}
+            </blockTable>
+
+        {% endif %}
+    </story>
+    
+</document>

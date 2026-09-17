@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} PUPSS Admin | Modify Group {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+
+<h1 class="main-title">Group Policy Modification</h1>
+
+<div class="wrapper">
+    <div class="row justify-content-center">
+        <div class="form-wrapper-center">
+            <div class="custom-form-card">
+                
+                <div class="card-header-reviewer">
+                    <h4>System Rules Group: {{ group_obj.name }}</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Group Title/Name</label>
+                            {{ form.name }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Functional Description Summary</label>
+                            {{ form.description }}
+                        </div>
+
+                        <hr style="border-color: var(--border-light);">
+
+                        <h5 class="fw-bold mt-3 mb-1" style="color: var(--text-dark);">System Access Authorizations</h5>
+                        <p class="form-helper-text mb-3">Check or uncheck variables below to change this group's capabilities dynamically across the PUPSS modules.</p>
+                        
+                        <div class="p-3 rounded border" style="border-color: var(--input-border) !important;">
+                            {% for checkbox in form.permissions %}
+                                <div class="form-check mb-3 d-flex align-items-center">
+                                    {{ checkbox.tag }}
+                                    <label class="form-check-label ms-3" style="cursor: pointer; color: var(--text-dark); margin-bottom: 0;">
+                                        {{ checkbox.choice_label }}
+                                    </label>
+                                </div>
+                            {% empty %}
+                                <div class="form-helper-text py-2">
+                                    ⚠️ System Access permissions not found in database. Run migrations.
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr style="border-color: var(--border-light);">
+                        
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="javascript:history.back()" class="btn-cancel">Cancel</a>
+                            <button type="submit" class="btn-submit">Apply Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

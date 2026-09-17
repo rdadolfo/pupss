@@ -1,0 +1,75 @@
+/* ── 1. DROPDOWN WRAPPER ── */
+.dropdown-wrapper { 
+    position: relative; 
+    display: inline-block; 
+}
+
+/* ── 2. MENU TRIGGER BUTTON ── */
+.simple-dropbtn {
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.simple-dropbtn:hover { 
+    background: var(--tertiary); 
+    color: var(--bg); 
+}
+
+/* ── 3. DROPDOWN BOX (Hidden by Default) ── */
+.simple-dropdown-content {
+    display: none; /* Toggled by the .show-menu class */
+    position: absolute;
+    right: 0; /* Aligns flush with the right side of the button */
+    top: 110%; /* Pushes it just below the button */
+    background-color: var(--body-bg) !important; 
+    min-width: 200px;
+    box-shadow: 0px 8px 24px rgba(0,0,0,0.15); /* Soft shadow to float over charts */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 1000; /* Ensures it sits on top of everything else */
+    overflow: hidden;
+}
+
+/* ── 4. DROPDOWN LINKS ── */
+.simple-dropdown-content a {
+    color: var(--body-fg) !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.simple-dropdown-content a:hover {
+    background-color: var(--bg);
+    color: var(--primary) !important;
+}
+
+/* ── 5. DIVIDER & LOGOUT ── */
+.dropdown-divider {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+}
+
+.logout-link { 
+    color: #dc3545 !important; 
+    font-weight: 600; 
+}
+
+[data-theme="dark"] .logout-link { 
+    color: #ff6b7a !important; 
+}
+
+/* ── 6. JAVASCRIPT TOGGLE CLASS ── */
+.show-menu {
+    display: block !important;
+}

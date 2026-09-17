@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} PUPSS Admin | Groups {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+
+<h1 class="main-title">Group Policy Administration</h1>
+
+<div class="wrapper">
+    <div class="row justify-content-center">
+        <div class="form-wrapper-center">
+            <div class="custom-form-card">
+                
+                <div class="card-header-reviewer">
+                    <h4>Create New Institutional Group Layer</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <p class="form-helper-text">Provide descriptive constraints and security boundaries to map an operations group category.</p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert-custom {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}" role="alert">
+                                <span class="me-2">{% if message.tags == 'success' %}✅{% else %}❌{% endif %}</span>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4 operational-form-fields">
+                            {{ form.as_p }}
+                        </div>
+                        
+                        <hr style="border-color: var(--border-light);">
+                        
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="javascript:history.back()" class="btn-cancel">Cancel</a>
+                            <button type="submit" class="btn-submit">Create Group</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

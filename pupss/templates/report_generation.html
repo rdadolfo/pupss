@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} PUPSS | Report Generation {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/report.css' %}">
+<script src="{% static 'js/chart.js' %}"></script>
+
+<h1 class="main-title">Insight Reports & Analytics</h1>
+
+<div class="wrapper">
+    <div class="table-control-wrap">
+        
+        <!-- 1. The Master Switch Toggle -->
+        <div class="report-mode-toggle">
+            <button class="mode-btn active" id="btnSummary" onclick="switchReportMode('summary')">
+                📊 Aggregated Summary
+            </button>
+            <button class="mode-btn" id="btnDetailed" onclick="switchReportMode('detailed')">
+                📋 Detailed Faculty Log
+            </button>
+        </div>
+
+        <!-- 2. The Dynamic Input Area -->
+        <div class="filter-row">
+            
+            <!-- Shared Field: Always Visible -->
+            <div class="field field-shared">
+                <label>Select Report Data</label>
+                <div class="custom-multi-select" id="customReportSelect">
+                    <div class="select-trigger" id="reportSelectTrigger">
+                        <span id="reportSelectLabel">All Processed Reports</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="select-options-panel" id="reportOptionsPanel">
+                        <label class="custom-option">
+                            <input type="checkbox" id="selectAllReports" value="all" checked>
+                            <span>All Processed Reports</span>
+                        </label>
+                        <hr class="dropdown-divider">
+                        <div id="dynamicReportOptions"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY MODE CONTROLS -->
+            <div id="summaryControls" class="mode-controls">
+                <div class="field">
+                    <label for="entitySelect">Analyze By</label>
+                    <select id="entitySelect" class="form-control">
+                        <option value="student">Offending Students</option>
+                        <option value="professor">Targeted Faculty</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="topNSelect">Show Top</label>
+                    <select id="topNSelect" class="form-control">
+                        <!-- JS populated -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- DETAILED MODE CONTROLS (Hidden by default) -->
+            <div id="detailedControls" class="mode-controls" style="display: none;">
+                <div class="field" style="width: 100%;">
+                    <label>Select Specific Faculty</label>
+                    <div class="custom-multi-select" id="customFacultySelect">
+                        <div class="select-trigger" id="facultySelectTrigger">
+                            <span id="facultySelectLabel">All Faculty Members</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="select-options-panel" id="facultyOptionsPanel">
+                            <label class="custom-option">
+                                <input type="checkbox" id="selectAllFaculty" value="all" checked>
+                                <span>All Faculty Members</span>
+                            </label>
+                            <hr class="dropdown-divider">
+                            <div id="dynamicFacultyOptions"></div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Generate Button -->
+            <div class="button-wrap">
+                <button onclick="generateInsightReport()" class="btn btn-report btn-maroon">
+                    🚀 Generate Insights
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tableControl" class="table-controls">
+        <button onclick="downloadPDF()" id="exportPdfBtn" class="btn btn-pdf btn-outline">
+            📄 Download PDF Report
+        </button>
+    </div>
+
+    <div id="printableReportArea">
+        <div id="pdfPrintZone">
+            <div id="instructorTabsContainer" class="horizontal-tabs-container" style="display: none;"></div>
+            
+            <div id="chartsContainer">
+                <div class="chart-wrap">
+                    <h3 id="barChartTitle">Top Entities by Hate Speech Volume</h3>
+                    <div class="barChart">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-wrap">
+                    <h3 class="doughnutChartTitle">Safe vs. Hate Ratio</h3>
+                    <div class="doughnutChart">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="insightTableContainer">
+                <h3 id="tableTitle">Detailed Entity Breakdown</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr id="tableHeaderRow">
+                                <th>Rank</th>
+                                <th id="tableEntityHeader">Name / ID</th>
+                                <th>Total</th>
+                                <th>Hate Count</th>
+                                <th>Safe Count</th>
+                                <th>Toxicity %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="insightTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/reports.js' %}"></script>
+<script src="{% static 'js/html2pdf.bundle.min.js' %}"></script>
+{% endblock %}
